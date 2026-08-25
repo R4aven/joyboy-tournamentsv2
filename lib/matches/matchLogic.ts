@@ -1,6 +1,6 @@
 /**
  * 🇨🇮 JOYBOY - Logique métier Match Salon eFootball
- * FIXED - plus d'erreur ternaire
+ * FIXED v2 - TypeScript winnerId
  */
 import type {
   SalonInfo,
@@ -130,18 +130,18 @@ export function checkDeclarationsMatch(decA: ResultDeclaration, decB: ResultDecl
   if (decA.scoreA === decB.scoreA && decA.scoreB === decB.scoreB) {
     const winnerTag =
       decA.scoreA > decA.scoreB ? "__PLAYER_A__" : decA.scoreA < decA.scoreB ? "__PLAYER_B__" : "__DRAW__";
-    return { match: true, winnerId: winnerTag };
+    return { match: true, winnerId: winnerTag } as DeclarationMatchResult;
   }
   return { match: false, reason: `Déclarations différentes: ${decA.scoreA}-${decA.scoreB} vs ${decB.scoreA}-${decB.scoreB}` };
 }
 
 export function checkDeclarationsMatchWithMatch(match: EfootballMatch, declarations: ResultDeclaration[]): DeclarationMatchResult {
-  if (declarations.length < 2) return { match: null, reason: "WAITING_SECOND" };
+  if (declarations.length < 2) return { match: null, reason: "WAITING_SECOND" } as DeclarationMatchResult;
   const [d1, d2] = declarations;
   if (d1.scoreA === d2.scoreA && d1.scoreB === d2.scoreB) {
-    if (d1.scoreA > d1.scoreB) return { match: true, winnerId: match.player_a.id };
-    if (d1.scoreA < d1.scoreB) return { match: true, winnerId: match.player_b ? match.player_b.id : d2.playerId };
-    return { match: true, winnerId: "DRAW" };
+    if (d1.scoreA > d1.scoreB) return { match: true, winnerId: match.player_a.id } as DeclarationMatchResult;
+    if (d1.scoreA < d1.scoreB) return { match: true, winnerId: match.player_b ? match.player_b.id : d2.playerId } as DeclarationMatchResult;
+    return { match: true, winnerId: "DRAW" } as DeclarationMatchResult;
   }
   return { match: false, reason: `Score A: ${d1.scoreA}-${d1.scoreB} ≠ Score B: ${d2.scoreA}-${d2.scoreB}` };
 }
@@ -163,8 +163,10 @@ export function confirmResult(
     }
     finalA = match.result_declarations[0].scoreA;
     finalB = match.result_declarations[0].scoreB;
-    winnerId = check.match === true ? check.winnerId : null;
-    if (check.winnerId === "DRAW") winnerId = null;
+    if (check.match === true) {
+      winnerId = (check as any).winnerId ?? null;
+      if ((check as any).winnerId === "DRAW") winnerId = null;
+    }
   } else {
     finalA = match.result_declarations[0].scoreA;
     finalB = match.result_declarations[0].scoreB;
