@@ -1,22 +1,23 @@
+
 "use client";
-import { useState, useEffect, Suspense } from "react";
+import { useState, useEffect } from "react";
 import { createClient } from "@/lib/supabase/client";
-import { Search, Users, Trophy, Flame, Crown } from "lucide-react";
+import { Search, Users, Trophy, Crown } from "lucide-react";
 import Link from "next/link";
 import { useRouter, useSearchParams } from "next/navigation";
 
-export const dynamic = "force-dynamic";
-
 type Profile = {
   id: string;
-  pseudo: string;
+  username: string;
+  pseudo?: string;
   avatar_url?: string;
   trophies?: number;
   titres?: number;
   victoires?: number;
+  wins?: number;
 };
 
-function SearchContent() {
+export default function SearchPage() {
   const supabase = createClient();
   const router = useRouter();
   const searchParams = useSearchParams();
@@ -29,9 +30,25 @@ function SearchContent() {
     const delay = setTimeout(async () => {
       if (!query.trim() || query.length < 2) { setResults([]); return; }
       setLoading(true);
-      const { data } = await supabase.from("profiles").select("*").ilike("pseudo", `%${query}%`).limit(20);
-      if (data) setResults(data as any);
-      setLoading(false);
+      try {
+        const { data, error } = await supabase
+          .from("profiles")
+          .select("id, username, avatar_url, wins, tournaments_won")
+          .ilike("username", `%${query}%`)
+          .limit(20);
+        
+        if (error) throw error;
+        if (data) {
+          // Filtrer les faux joueurs si tu as une colonne is_mock ou username qui commence par mock-
+          const filtered = data.filter((p:any) => !p.username?.startsWith("mock-") && !p.username?.startsWith("m"));
+          // Si tu veux TOUS les vrais meme si mock, enleve le filtre ci-dessus et mets juste setResults(data)
+          setResults(filtered.length ? filtered : data as any);
+        }
+      } catch (e) {
+        console.error(e);
+      } finally {
+        setLoading(false);
+      }
     }, 300);
     return () => clearTimeout(delay);
   }, [query]);
@@ -80,13 +97,13 @@ function SearchContent() {
             )
           ) : (
             results.map((p) => (
-              <Link key={p.id} href={`/profile/${p.id}`} className="card-premium rounded-2xl p-4 flex items-center gap-4 hover:border-joy-violet/40 transition group">
-                <div className="h-12 w-12 rounded-xl bg-gradient-joy flex items-center justify-center font-black group-hover:scale-105 transition">{p.pseudo[0].toUpperCase()}</div>
+              <Link key={p.id} href={`/profile/${p.username}`} className="card-premium rounded-2xl p-4 flex items-center gap-4 hover:border-joy-violet/40 transition group">
+                <div className="h-12 w-12 rounded-xl bg-gradient-joy flex items-center justify-center font-black group-hover:scale-105 transition">{(p.username || p.pseudo || "?")[0].toUpperCase()}</div>
                 <div className="flex-1 min-w-0">
-                  <p className="font-bold flex items-center gap-2">{p.pseudo} { (p.titres ?? 0) > 2 && <Crown className="h-4 w-4 text-amber-400" />}</p>
+                  <p className="font-bold flex items-center gap-2">{p.username} { (p.titres ?? 0) > 2 && <Crown className="h-4 w-4 text-amber-400" />}</p>
                   <div className="flex gap-2 mt-1">
                     <span className="text-[11px] bg-amber-500/20 text-amber-300 px-2 py-0.5 rounded-full font-bold flex items-center gap-1"><Trophy className="h-3 w-3" /> {p.trophies ?? 0} troph.</span>
-                    <span className="text-[11px] bg-joy-card border border-joy-border px-2 py-0.5 rounded-full">{p.victoires ?? 0} victoires</span>
+                    <span className="text-[11px] bg-joy-card border border-joy-border px-2 py-0.5 rounded-full">{p.victoires ?? p.wins ?? 0} victoires</span>
                   </div>
                 </div>
                 <div className="text-xs text-zinc-500">Voir profil →</div>
@@ -96,13 +113,5 @@ function SearchContent() {
         </div>
       </div>
     </div>
-  );
-}
-
-export default function SearchPage() {
-  return (
-    <Suspense fallback={<div className="min-h-screen bg-[#08080B] text-white flex items-center justify-center p-10 text-zinc-500">Chargement recherche JOYBOY...</div>}>
-      <SearchContent />
-    </Suspense>
   );
 }

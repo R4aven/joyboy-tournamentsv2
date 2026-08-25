@@ -263,7 +263,7 @@ export default function DashboardPage() {
         </div>
 
         <div className="flex gap-2">
-          <Link href="/defis" className="inline-flex h-11 items-center justify-center gap-2 rounded-xl bg-[#15151E] border border-[#22222F] px-5 text-[13px] font-bold text-white hover:border-[#7C3AED]/40 transition-colors">
+          <Link href="/1v1" className="inline-flex h-11 items-center justify-center gap-2 rounded-xl bg-[#15151E] border border-[#22222F] px-5 text-[13px] font-bold text-white hover:border-[#7C3AED]/40 transition-colors">
             <Swords className="h-4 w-4" /> Nouveau défi
           </Link>
           <Link href="/tournois" className="inline-flex h-11 items-center justify-center gap-2 rounded-xl bg-gradient-to-r from-[#7C3AED] to-[#06B6D4] px-5 text-[13px] font-bold text-white shadow-[0_0_20px_rgba(124,58,237,0.35)] hover:shadow-[0_0_30px_rgba(124,58,237,0.5)] transition-all">
@@ -336,7 +336,7 @@ export default function DashboardPage() {
                   <p className="text-[24px]">🎮</p>
                   <p className="mt-2 text-[13px] font-bold text-white">Aucun match encore</p>
                   <p className="mt-1 text-[12px] text-zinc-500">Lance ton premier défi 1V1 ou rejoins un tournoi pour commencer.</p>
-                  <Link href="/defis" className="mt-4 inline-flex h-9 items-center justify-center rounded-xl bg-white px-4 text-[12px] font-bold text-black">Défier un joueur</Link>
+                  <Link href="/1v1" className="mt-4 inline-flex h-9 items-center justify-center rounded-xl bg-white px-4 text-[12px] font-bold text-black">Défier un joueur</Link>
                 </div>
               ) : matches.map((m) => (
                 <div key={m.id} className="flex items-center justify-between rounded-xl bg-[#0F0F14] border border-[#22222F]/60 px-4 py-3.5">

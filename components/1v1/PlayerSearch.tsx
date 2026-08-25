@@ -157,24 +157,14 @@ export default function PlayerSearch({
 
         if (!error && data && data.length > 0) {
           const mapped = (data as PlayerRow[]).map(mapToPlayerStats);
-          setResults(mapped);
+          // On filtre les mocks si jamais
+          const realOnly = mapped.filter(p => !p.id.startsWith("mock-") && !p.id.startsWith("m"));
+          setResults(realOnly);
         } else {
-          // Fallback démo - filtre mock
-          const filtered = MOCK_JOUEURS.filter(
-            (p) =>
-              p.pseudo.toLowerCase().includes(query.toLowerCase()) ||
-              p.username.toLowerCase().includes(query.toLowerCase())
-          ).filter((p) => p.id !== excludeUserId);
-          setResults(filtered);
+          setResults([]);
         }
       } catch (e) {
-        // Mode démo total
-        const filtered = MOCK_JOUEURS.filter(
-          (p) =>
-            p.pseudo.toLowerCase().includes(query.toLowerCase()) ||
-            p.username.toLowerCase().includes(query.toLowerCase())
-        ).filter((p) => p.id !== excludeUserId);
-        setResults(filtered);
+        setResults([]);
       } finally {
         setLoading(false);
       }

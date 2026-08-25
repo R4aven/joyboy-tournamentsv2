@@ -28,13 +28,39 @@ export default function NotificationSettingsPage() {
 
   useEffect(() => {
     const load = async () => {
-      const { data: { user } } = await supabase.auth.getUser();
-      if (!user) return;
-      const { data } = await supabase.from("notification_preferences").select("*").eq("user_id", user.id).single();
-      if (data) setPrefs(data as any);
-      setLoading(false);
+      try {
+        const { data: { user } } = await supabase.auth.getUser();
+        if (!user) {
+          setLoading(false);
+          return;
+        }
+        // maybeSingle() = pas d'erreur si 0 ligne
+        const { data, error } = await supabase
+          .from("notification_preferences")
+          .select("tournoi, duel_1v1, paiement, palmares, compte")
+          .eq("user_id", user.id)
+          .maybeSingle();
+
+        if (error) {
+          console.warn("load prefs error:", error);
+        }
+        if (data) {
+          setPrefs({
+            tournoi: data.tournoi,
+            duel_1v1: data.duel_1v1,
+            paiement: data.paiement,
+            palmares: data.palmares,
+            compte: data.compte,
+          });
+        }
+      } catch (e) {
+        console.warn(e);
+      } finally {
+        setLoading(false);
+      }
     };
     load();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
   const toggle = (k: keyof Prefs) => setPrefs((p) => ({ ...p, [k]: !p[k] }));
@@ -44,12 +70,23 @@ export default function NotificationSettingsPage() {
     try {
       const { data: { user } } = await supabase.auth.getUser();
       if (!user) throw new Error("Non connecte");
-      await supabase.from("notification_preferences").upsert({ user_id: user.id, ...prefs });
-      toast.success("Preferences enregistrees");
+
+      // IMPORTANT: onConflict user_id pour UPDATE pas INSERT doublon
+      const { error } = await supabase
+        .from("notification_preferences")
+        .upsert(
+          { user_id: user.id, ...prefs, updated_at: new Date().toISOString() },
+          { onConflict: "user_id" }
+        );
+
+      if (error) throw error;
+      toast.success("Preferences enregistrees ✅");
     } catch (e: any) {
-      toast.error(e.message);
+      console.error(e);
+      toast.error(e.message ?? "Erreur sauvegarde");
+    } finally {
+      setSaving(false);
     }
-    setSaving(false);
   };
 
   if (loading) return <div className="min-h-screen bg-[#08080B] flex items-center justify-center text-zinc-500">Chargement...</div>;
@@ -77,7 +114,7 @@ export default function NotificationSettingsPage() {
           ))}
         </div>
 
-        <button onClick={save} disabled={saving} className="w-full rounded-xl bg-gradient-joy py-3 text-sm font-bold flex items-center justify-center gap-2 glow-violet">
+        <button onClick={save} disabled={saving} className="w-full rounded-xl bg-gradient-joy py-3 text-sm font-bold flex items-center justify-center gap-2 glow-violet disabled:opacity-50">
           <Save className="h-4 w-4" /> {saving ? "Enregistrement..." : "Enregistrer les preferences"}
         </button>
 
