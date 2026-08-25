@@ -1,0 +1,16 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+:root { --joy-black: #08080B; }
+body { background: #08080B; color: white; font-family: Inter, sans-serif; }
+* { scrollbar-width: thin; scrollbar-color: #22222F #08080B; }
+::-webkit-scrollbar { width: 6px; }
+::-webkit-scrollbar-track { background: #08080B; }
+::-webkit-scrollbar-thumb { background: #22222F; border-radius: 3px; }
+.glass { backdrop-filter: blur(12px); background: rgba(21,21,30,0.8); border: 1px solid rgba(255,255,255,0.06); }
+.glow-violet { box-shadow: 0 0 40px rgba(124,58,237,0.25), inset 0 1px 0 rgba(255,255,255,0.1); }
+.glow-cyan { box-shadow: 0 0 40px rgba(6,182,214,0.2), inset 0 1px 0 rgba(255,255,255,0.1); }
+.text-gradient { background: linear-gradient(135deg, #A855F7 0%, #06B6D4 100%); -webkit-background-clip: text; -webkit-text-fill-color: transparent; }
+.bg-gradient-joy { background: linear-gradient(135deg, #7C3AED 0%, #06B6D4 100%); }
+.card-premium { background: linear-gradient(180deg, rgba(255,255,255,0.05) 0%, rgba(255,255,255,0.01) 100%), #15151E; border: 1px solid #22222F; }
+.card-premium:hover { border-color: rgba(124,58,237,0.4); }
