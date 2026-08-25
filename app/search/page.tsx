@@ -1,9 +1,11 @@
 "use client";
-import { useState, useEffect } from "react";
+import { useState, useEffect, Suspense } from "react";
 import { createClient } from "@/lib/supabase/client";
 import { Search, Users, Trophy, Flame, Crown } from "lucide-react";
 import Link from "next/link";
 import { useRouter, useSearchParams } from "next/navigation";
+
+export const dynamic = "force-dynamic";
 
 type Profile = {
   id: string;
@@ -14,7 +16,7 @@ type Profile = {
   victoires?: number;
 };
 
-export default function SearchPage() {
+function SearchContent() {
   const supabase = createClient();
   const router = useRouter();
   const searchParams = useSearchParams();
@@ -94,5 +96,13 @@ export default function SearchPage() {
         </div>
       </div>
     </div>
+  );
+}
+
+export default function SearchPage() {
+  return (
+    <Suspense fallback={<div className="min-h-screen bg-[#08080B] text-white flex items-center justify-center p-10 text-zinc-500">Chargement recherche JOYBOY...</div>}>
+      <SearchContent />
+    </Suspense>
   );
 }
