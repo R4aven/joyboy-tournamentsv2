@@ -1,7 +1,6 @@
-
 /**
  * 🇨🇮 JOYBOY - Logique métier Match Salon eFootball
- * VRAIE LOGIQUE, pas de simulation. JOYBOY organise seulement.
+ * FIXED - plus d'erreur ternaire
  */
 import type {
   SalonInfo,
@@ -14,7 +13,6 @@ import type {
 } from "./types";
 import { MATCH_STATUS_ORDER } from "./types";
 
-// Vérifie si user peut voir infos salon (PRIVÉ 2 joueurs + admin)
 export function canViewSalonInfo(
   match: EfootballMatch,
   userId: string | null | undefined,
@@ -38,10 +36,9 @@ export function canViewSalonInfo(
   return { canView: false, reason: "FORBIDDEN", isCreator: false };
 }
 
-// Qui peut créer le salon ? Le 1er joueur qui clique ou A par défaut
 export function canCreateSalon(match: EfootballMatch, userId: string): boolean {
-  if (match.salon_info) return false; // déjà créé
-  if (!match.player_b) return false; // pas d'adversaire
+  if (match.salon_info) return false;
+  if (!match.player_b) return false;
   return match.player_a.id === userId || match.player_b.id === userId;
 }
 
@@ -52,10 +49,10 @@ export function createSalonInfo(input: {
   createdBy: string;
 }): { salon: SalonInfo; nextStatus: MatchStatus } {
   if (!input.salonId || input.salonId.trim().length < 2) {
-    throw new Error("ID Salon eFootball obligatoire (ex: KONAMI ID, nom de salle)");
+    throw new Error("ID Salon eFootball obligatoire");
   }
   if (!input.instructions || input.instructions.trim().length < 5) {
-    throw new Error("Instructions obligatoires (ex: Rejoins en amical, cherche RavenCI)");
+    throw new Error("Instructions obligatoires");
   }
   const salon: SalonInfo = {
     salonId: input.salonId.trim(),
@@ -73,17 +70,12 @@ export function markPlayerConnected(match: EfootballMatch, playerId: string): Pa
   const isA = match.player_a.id === playerId;
   const isB = match.player_b?.id === playerId;
   if (!isA && !isB) throw new Error("Tu n'es pas joueur de ce match");
-
   const player_a_connected = isA ? true : match.player_a_connected;
   const player_b_connected = isB ? true : match.player_b_connected;
-
   let nextStatus: MatchStatus = match.status;
   if (player_a_connected && player_b_connected) {
     nextStatus = "JOUEURS_CONNECTES";
-  } else if (match.status === "SALON_CREE") {
-    nextStatus = "SALON_CREE"; // reste tant que les 2 ne sont pas connectés
   }
-
   return {
     player_a_connected,
     player_b_connected,
@@ -120,15 +112,11 @@ export function declareResult(
     ...declaration,
     declaredAt: new Date().toISOString(),
   };
-
   const filtered = match.result_declarations.filter((d) => d.playerId !== declaration.playerId);
   const updated = [...filtered, newDec];
-
   if (updated.length === 1) {
     return { updatedDeclarations: updated, nextStatus: "RESULTAT_EN_ATTENTE" };
   }
-
-  // 2 déclarations → check concordance
   const check = checkDeclarationsMatch(updated[0], updated[1]);
   if (check.match === true) {
     return { updatedDeclarations: updated, nextStatus: "RESULTAT_CONFIRME", autoConfirm: true };
@@ -139,42 +127,14 @@ export function declareResult(
 }
 
 export function checkDeclarationsMatch(decA: ResultDeclaration, decB: ResultDeclaration): DeclarationMatchResult {
-  // Les 2 doivent dire le même score A vs B (peu importe qui déclare victoire)
   if (decA.scoreA === decB.scoreA && decA.scoreB === decB.scoreB) {
-    // cohérence de isVictory optionnelle mais logique : si A gagne 3-1, A isVictory true, B isVictory false
-    const winnerId = decA.scoreA > decA.scoreB ? "PLAYER_A" : decA.scoreA < decA.scoreB ? "PLAYER_B" : "DRAW";
-    // On retourne l'id réel du gagnant en cherchant dans les déclarations
-    const realWinnerId = decA.scoreA > decA.scoreB ? decA.playerId && decA.scoreA > decA.scoreB ? (decA.scoreA > decA.scoreB ? (winnerId === "PLAYER_A" ? decA.scoreA > decA.scoreB ? "" : "") : "") : "" : "" : "";
-    // Plus simple : on détermine winner via score
-    let winnerPlayerId: string;
-    if (decA.scoreA > decA.scoreB) {
-      // Joueur A gagne - il faut trouver l'id de A dans le match, mais ici on a seulement decA.playerId
-      // On assume que scoreA = joueur A, donc winner = player A réel
-      winnerPlayerId = decA.playerId; // sera réinterprété côté confirmResult avec match
-      // Hack propre : on retourne un identifiant logique qui sera mappé après
-      // Ici on retourne simplement decA si A gagne, sinon decB etc - le confirm se fera avec le match
-      winnerPlayerId = "__PLAYER_A__";
-      if (decA.scoreA < decA.scoreB) winnerPlayerId = "__PLAYER_B__";
-      // On va le mapper dans confirmResult
-      if (decA.scoreA > decA.scoreB) winnerPlayerId = "__PLAYER_A__";
-      else if (decA.scoreA < decA.scoreB) winnerPlayerId = "__PLAYER_B__";
-      else winnerPlayerId = "__DRAW__";
-    } else {
-      if (decA.scoreA > decA.scoreB) winnerPlayerId = "__PLAYER_A__";
-      else if (decA.scoreA < decA.scoreB) winnerPlayerId = "__PLAYER_B__";
-      else winnerPlayerId = "__DRAW__";
-    }
-    // Réévaluation simple
-    if (decA.scoreA === decB.scoreA && decA.scoreB === decB.scoreB) {
-      const winnerTag = decA.scoreA > decA.scoreB ? "__PLAYER_A__" : decA.scoreA < decA.scoreB ? "__PLAYER_B__" : "__DRAW__";
-      return { match: true, winnerId: winnerTag };
-    }
-    return { match: false, reason: "Scores incohérents" };
+    const winnerTag =
+      decA.scoreA > decA.scoreB ? "__PLAYER_A__" : decA.scoreA < decA.scoreB ? "__PLAYER_B__" : "__DRAW__";
+    return { match: true, winnerId: winnerTag };
   }
   return { match: false, reason: `Déclarations différentes: ${decA.scoreA}-${decA.scoreB} vs ${decB.scoreA}-${decB.scoreB}` };
 }
 
-// Version qui a besoin du match pour mapper PLAYER_A/B vers vrai ID
 export function checkDeclarationsMatchWithMatch(match: EfootballMatch, declarations: ResultDeclaration[]): DeclarationMatchResult {
   if (declarations.length < 2) return { match: null, reason: "WAITING_SECOND" };
   const [d1, d2] = declarations;
@@ -196,30 +156,25 @@ export function confirmResult(
   let winnerId: string | null = null;
   let finalA: number;
   let finalB: number;
-
   if (match.result_declarations.length >= 2) {
     const check = checkDeclarationsMatchWithMatch(match, match.result_declarations);
     if (check.match !== true && !adminId) {
-      throw new Error("Déclarations non concordantes - passage en contestation requis");
+      throw new Error("Déclarations non concordantes");
     }
     finalA = match.result_declarations[0].scoreA;
     finalB = match.result_declarations[0].scoreB;
     winnerId = check.match === true ? check.winnerId : null;
     if (check.winnerId === "DRAW") winnerId = null;
   } else {
-    // Admin force à partir d'une seule déclaration
     finalA = match.result_declarations[0].scoreA;
     finalB = match.result_declarations[0].scoreB;
     if (finalA > finalB) winnerId = match.player_a.id;
     else if (finalB > finalA) winnerId = match.player_b?.id || null;
   }
-
   if (finalA! > finalB!) winnerId = match.player_a.id;
   else if (finalB! > finalA!) winnerId = match.player_b?.id || null;
-  else winnerId = null; // match nul rare mais géré (eFootball peut faire nul en amical)
-
+  else winnerId = null;
   const loserId = winnerId ? (winnerId === match.player_a.id ? match.player_b?.id || null : match.player_a.id) : null;
-
   return {
     status: "TERMINE" as MatchStatus,
     final_score_a: finalA!,
@@ -266,25 +221,20 @@ export function adminResolveContestation(
   };
 }
 
-// Bracket / Tournoi update après victoire (logique réelle, pas simu eFootball)
 export function updateBracketAfterWin(input: {
   match: EfootballMatch;
   tournamentId: string;
   winnerId: string;
 }): { nextMatchId: string | null; shouldNotify: string[] } {
-  // JOYBOY organise seulement - ici on prépare la progression bracket, sans simuler eFootball
-  // Retourne l'ID du prochain match où le winner doit être placé
-  // Implémentation côté serveur: update bracket_data JSONB du tournament
-  // Pour le mock, on retourne null = à implémenter avec Supabase
   return {
-    nextMatchId: null, // à calculer depuis tournament.bracket_data
-    shouldNotify: [input.winnerId, "ADMIN"], // notifier winner + admin
+    nextMatchId: null,
+    shouldNotify: [input.winnerId, "ADMIN"],
   };
 }
 
 export function getStatusProgress(status: MatchStatus): number {
   const idx = MATCH_STATUS_ORDER.indexOf(status);
-  if (status === "CONTESTATION") return 6; // entre RESULTAT_CONFIRME et TERMINE visuellement
+  if (status === "CONTESTATION") return 6;
   if (status === "RESULTAT_EN_ATTENTE") return 5;
   if (status === "RESULTAT_CONFIRME") return 6;
   return idx >= 0 ? idx : 0;
@@ -307,7 +257,7 @@ export function generateMockMatch(matchId: string): EfootballMatch {
   const mockA: PlayerMatchProfile = {
     id: "player-a-uuid",
     username: "RavenCI",
-    display_name: "Raven Côte d\'Ivoire",
+    display_name: "Raven Côte d'Ivoire",
     avatar_url: null,
     efootball_pseudo: "RavenCI_225",
     whatsapp_number: "07 48 23 52 26",
