@@ -8,6 +8,5 @@ export const WAVE_NUMBER = "01 51 42 99 18";
 export const WHATSAPP_NUMBER = "07 48 23 52 26";
 export const PRIX_1V1 = 500;
 
-// Alias compat TournamentCard
+// Alias for compatibility
 export function formatPrice(amount: number){ return new Intl.NumberFormat('fr-CI').format(amount)+' FCFA'; }
-export const formatPrix = formatFCFA;
