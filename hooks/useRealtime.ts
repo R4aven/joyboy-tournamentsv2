@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useState, useCallback } from "react";
+import { useCallback, useEffect, useMemo, useState } from "react";
 import { createClient } from "@/lib/supabase/client";
 import { useAuth } from "./useAuth";
 import { toast } from "sonner";
@@ -18,11 +18,17 @@ export type Notification = {
 
 export function useRealtime() {
   const { user } = useAuth();
-  const supabase = createClient();
+
+  // Un seul client Supabase pour toute la durée de vie du hook.
+  const supabase = useMemo(() => createClient(), []);
+
   const [notifications, setNotifications] = useState<Notification[]>([]);
   const [loading, setLoading] = useState(true);
 
-  const unreadCount = notifications.filter((n) => !n.is_read).length;
+  const unreadCount = notifications.reduce(
+    (count, notification) => count + (notification.is_read ? 0 : 1),
+    0
+  );
 
   const fetchNotifications = useCallback(async () => {
     if (!user) {
@@ -30,8 +36,10 @@ export function useRealtime() {
       setLoading(false);
       return;
     }
+
     try {
       setLoading(true);
+
       const { data, error } = await supabase
         .from("notifications")
         .select("*")
@@ -39,25 +47,38 @@ export function useRealtime() {
         .order("created_at", { ascending: false })
         .limit(50);
 
-      if (error) throw error;
+      if (error) {
+        throw error;
+      }
+
       setNotifications((data as Notification[]) ?? []);
-    } catch (e) {
-      console.error("fetch notifications", e);
+    } catch (error) {
+      console.error("Erreur récupération notifications :", error);
+      setNotifications([]);
     } finally {
       setLoading(false);
     }
-  }, [user, supabase]);
+  }, [supabase, user]);
 
+  /*
+   * Récupération initiale des notifications.
+   */
   useEffect(() => {
     fetchNotifications();
   }, [fetchNotifications]);
 
-  // Realtime subscription
+  /*
+   * Supabase Realtime
+   */
   useEffect(() => {
     if (!user) return;
 
     const channel = supabase
       .channel(`notifications-${user.id}`)
+
+      /*
+       * NOUVELLE NOTIFICATION
+       */
       .on(
         "postgres_changes",
         {
@@ -67,26 +88,66 @@ export function useRealtime() {
           filter: `user_id=eq.${user.id}`,
         },
         (payload) => {
-          const newNotif = payload.new as Notification;
-          setNotifications((prev) => [newNotif, ...prev]);
+          const newNotification = payload.new as Notification;
 
-          // Toast selon type
-          if (newNotif.type === "challenge") {
-            toast.info(`⚔️ ${newNotif.title}`, { description: newNotif.message });
-          } else if (newNotif.type === "tournament") {
-            toast.success(`🏆 ${newNotif.title}`, { description: newNotif.message });
-          } else if (newNotif.type === "payment") {
-            toast.success(`💰 ${newNotif.title}`, { description: newNotif.message });
-          } else {
-            toast(newNotif.title, { description: newNotif.message });
+          setNotifications((current) => {
+            // Empêche les doublons éventuels.
+            if (current.some((notification) => notification.id === newNotification.id)) {
+              return current;
+            }
+
+            return [newNotification, ...current].slice(0, 50);
+          });
+
+          /*
+           * Toast
+           */
+          switch (newNotification.type) {
+            case "challenge":
+              toast.info(`⚔️ ${newNotification.title}`, {
+                description: newNotification.message,
+              });
+              break;
+
+            case "tournament":
+              toast.success(`🏆 ${newNotification.title}`, {
+                description: newNotification.message,
+              });
+              break;
+
+            case "payment":
+              toast.success(`💰 ${newNotification.title}`, {
+                description: newNotification.message,
+              });
+              break;
+
+            case "match":
+              toast.info(`🎮 ${newNotification.title}`, {
+                description: newNotification.message,
+              });
+              break;
+
+            default:
+              toast(newNotification.title, {
+                description: newNotification.message,
+              });
           }
 
-          // Son ou vibration si supporté (optionnel)
-          if (typeof navigator !== "undefined" && "vibrate" in navigator) {
+          /*
+           * Vibration mobile si disponible.
+           */
+          if (
+            typeof navigator !== "undefined" &&
+            "vibrate" in navigator
+          ) {
             navigator.vibrate(150);
           }
         }
       )
+
+      /*
+       * NOTIFICATION MODIFIÉE
+       */
       .on(
         "postgres_changes",
         {
@@ -96,36 +157,94 @@ export function useRealtime() {
           filter: `user_id=eq.${user.id}`,
         },
         (payload) => {
-          const updated = payload.new as Notification;
-          setNotifications((prev) => prev.map((n) => (n.id === updated.id ? updated : n)));
+          const updatedNotification = payload.new as Notification;
+
+          setNotifications((current) =>
+            current.map((notification) =>
+              notification.id === updatedNotification.id
+                ? updatedNotification
+                : notification
+            )
+          );
         }
       )
-      .subscribe();
+
+      /*
+       * NOTIFICATION SUPPRIMÉE
+       */
+      .on(
+        "postgres_changes",
+        {
+          event: "DELETE",
+          schema: "public",
+          table: "notifications",
+          filter: `user_id=eq.${user.id}`,
+        },
+        (payload) => {
+          const deletedNotification = payload.old as Notification;
+
+          setNotifications((current) =>
+            current.filter(
+              (notification) =>
+                notification.id !== deletedNotification.id
+            )
+          );
+        }
+      )
+
+      .subscribe((status) => {
+        if (status === "CHANNEL_ERROR") {
+          console.error("Erreur Supabase Realtime notifications");
+        }
+
+        if (status === "TIMED_OUT") {
+          console.error("Supabase Realtime notifications timeout");
+        }
+      });
 
     return () => {
       supabase.removeChannel(channel);
     };
-  }, [user, supabase]);
+  }, [supabase, user]);
 
+  /*
+   * Marquer UNE notification comme lue.
+   */
   const markAsRead = useCallback(
     async (id: string) => {
+      if (!user) return;
+
       try {
         const { error } = await supabase
           .from("notifications")
           .update({ is_read: true })
-          .eq("id", id);
+          .eq("id", id)
+          .eq("user_id", user.id);
 
-        if (error) throw error;
-        setNotifications((prev) => prev.map((n) => (n.id === id ? { ...n, is_read: true } : n)));
-      } catch (e) {
-        console.error(e);
+        if (error) {
+          throw error;
+        }
+
+        setNotifications((current) =>
+          current.map((notification) =>
+            notification.id === id
+              ? { ...notification, is_read: true }
+              : notification
+          )
+        );
+      } catch (error) {
+        console.error("Erreur markAsRead :", error);
       }
     },
-    [supabase]
+    [supabase, user]
   );
 
+  /*
+   * Marquer TOUTES les notifications comme lues.
+   */
   const markAllAsRead = useCallback(async () => {
     if (!user) return;
+
     try {
       const { error } = await supabase
         .from("notifications")
@@ -133,24 +252,47 @@ export function useRealtime() {
         .eq("user_id", user.id)
         .eq("is_read", false);
 
-      if (error) throw error;
-      setNotifications((prev) => prev.map((n) => ({ ...n, is_read: true })));
-    } catch (e) {
-      console.error(e);
-    }
-  }, [user, supabase]);
+      if (error) {
+        throw error;
+      }
 
+      setNotifications((current) =>
+        current.map((notification) => ({
+          ...notification,
+          is_read: true,
+        }))
+      );
+    } catch (error) {
+      console.error("Erreur markAllAsRead :", error);
+    }
+  }, [supabase, user]);
+
+  /*
+   * Supprimer UNE notification.
+   */
   const deleteNotification = useCallback(
     async (id: string) => {
+      if (!user) return;
+
       try {
-        const { error } = await supabase.from("notifications").delete().eq("id", id);
-        if (error) throw error;
-        setNotifications((prev) => prev.filter((n) => n.id !== id));
-      } catch (e) {
-        console.error(e);
+        const { error } = await supabase
+          .from("notifications")
+          .delete()
+          .eq("id", id)
+          .eq("user_id", user.id);
+
+        if (error) {
+          throw error;
+        }
+
+        setNotifications((current) =>
+          current.filter((notification) => notification.id !== id)
+        );
+      } catch (error) {
+        console.error("Erreur deleteNotification :", error);
       }
     },
-    [supabase]
+    [supabase, user]
   );
 
   return {
