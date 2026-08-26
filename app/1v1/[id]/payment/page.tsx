@@ -5,7 +5,7 @@ import Link from "next/link";
 import { useParams, useRouter } from "next/navigation";
 import { ArrowLeft, Copy, Check, Upload, Wallet, ShieldCheck, AlertTriangle, MessageCircle, Clock, Eye, X } from "lucide-react";
 import { createClient } from "@/lib/supabase/client";
-import { ETOURNOIS_CI_CI_CONFIG, submitPaymentProofLogic } from "@/lib/1v1/challengeLogic";
+import { ETOURNOIS_CI_CONFIG, submitPaymentProofLogic } from "@/lib/1v1/challengeLogic";
 import type { Challenge1v1 } from "@/lib/1v1/challengeLogic";
 import { toast } from "sonner";
 import { cn } from "@/lib/utils/cn";
@@ -80,7 +80,7 @@ export default function PaymentPage() {
   }, [id]);
 
   const copyWave = async () => {
-    await navigator.clipboard.writeText(ETOURNOIS_CI_CI_CONFIG.wave);
+    await navigator.clipboard.writeText(ETOURNOIS_CI_CONFIG.wave);
     setCopied(true);
     toast.success("Numéro Wave copié !");
     setTimeout(() => setCopied(false), 2000);
@@ -207,8 +207,8 @@ export default function PaymentPage() {
                 <div className="flex items-center justify-between gap-4">
                   <div>
                     <div className="text-xs uppercase tracking-wider text-zinc-500">Numéro E-TOURNOIS CI</div>
-                    <div className="mt-1 text-2xl font-black tracking-wider font-mono text-white">{ETOURNOIS_CI_CI_CONFIG.wave}</div>
-                    <div className="text-xs text-zinc-500">Nom: {ETOURNOIS_CI_CI_CONFIG.waveNom}</div>
+                    <div className="mt-1 text-2xl font-black tracking-wider font-mono text-white">{ETOURNOIS_CI_CONFIG.wave}</div>
+                    <div className="text-xs text-zinc-500">Nom: {ETOURNOIS_CI_CONFIG.waveNom}</div>
                   </div>
                   <button
                     onClick={copyWave}
@@ -228,7 +228,7 @@ export default function PaymentPage() {
               </div>
 
               <div className="mt-4 space-y-2 text-xs text-zinc-400 leading-relaxed">
-                <p>• Ouvre Wave, envoie <span className="text-white font-semibold">500 FCFA</span> au <span className="text-white font-mono">{ETOURNOIS_CI_CI_CONFIG.wave}</span></p>
+                <p>• Ouvre Wave, envoie <span className="text-white font-semibold">500 FCFA</span> au <span className="text-white font-mono">{ETOURNOIS_CI_CONFIG.wave}</span></p>
                 <p>• Mets en motif : <span className="rounded bg-[#22222F] px-1.5 py-0.5 text-white font-mono">1V1 {match.id.slice(0, 6)} + ton pseudo</span></p>
                 <p>• Fais un screen de la confirmation Wave (avec heure + montant + numéro bien visible)</p>
               </div>
@@ -246,7 +246,7 @@ export default function PaymentPage() {
                       <Upload className="h-6 w-6 text-zinc-500 group-hover:text-[#A855F7]" />
                     </div>
                     <div className="mt-3 text-sm font-semibold text-white">Clique pour choisir ton screen Wave</div>
-                    <div className="mt-1 text-xs text-zinc-500">PNG, JPG max 5 Mo • Le screen doit montrer 500 F, {ETOURNOIS_CI_CI_CONFIG.wave}, et l'heure</div>
+                    <div className="mt-1 text-xs text-zinc-500">PNG, JPG max 5 Mo • Le screen doit montrer 500 F, {ETOURNOIS_CI_CONFIG.wave}, et l'heure</div>
                     <input type="file" accept="image/*" className="hidden" onChange={handleFileChange} />
                   </label>
                 ) : (
@@ -334,7 +334,7 @@ export default function PaymentPage() {
               <h4 className="text-sm font-semibold text-amber-200 flex items-center gap-2"><AlertTriangle className="h-4 w-4" /> Important</h4>
               <ul className="mt-3 space-y-2 text-[11px] leading-relaxed text-amber-100/70 list-disc list-inside">
                 <li>Chaque joueur DOIT uploader sa propre preuve, sinon match pas confirmé.</li>
-                <li>Screen doit montrer : montant 500 F, numéro {ETOURNOIS_CI_CI_CONFIG.wave}, heure et référence Wave.</li>
+                <li>Screen doit montrer : montant 500 F, numéro {ETOURNOIS_CI_CONFIG.wave}, heure et référence Wave.</li>
                 <li>Pas de remboursement si tu annules après paiement sauf accord adversaire.</li>
                 <li>Preuve fake = ban direct + signalement, on rigole pas avec ça ici.</li>
               </ul>
@@ -343,8 +343,8 @@ export default function PaymentPage() {
             <div className="rounded-[20px] border border-[#7C3AED]/20 bg-[#7C3AED]/5 p-5">
               <h4 className="text-sm font-semibold text-white flex items-center gap-2"><MessageCircle className="h-4 w-4 text-[#A855F7]" /> Besoin d'aide ?</h4>
               <p className="mt-2 text-xs text-zinc-400">Un souci Wave, tu trouves pas le numéro, preuve refusée ? Écris au staff E-TOURNOIS CI, on répond vite.</p>
-              <a href={ETOURNOIS_CI_CI_CONFIG.whatsappLink} target="_blank" className="mt-3 flex w-full items-center justify-center gap-2 rounded-full bg-white text-black py-2.5 text-sm font-bold hover:bg-zinc-100 transition">
-                <MessageCircle className="h-4 w-4" /> WhatsApp {ETOURNOIS_CI_CI_CONFIG.whatsapp}
+              <a href={ETOURNOIS_CI_CONFIG.whatsappLink} target="_blank" className="mt-3 flex w-full items-center justify-center gap-2 rounded-full bg-white text-black py-2.5 text-sm font-bold hover:bg-zinc-100 transition">
+                <MessageCircle className="h-4 w-4" /> WhatsApp {ETOURNOIS_CI_CONFIG.whatsapp}
               </a>
               <p className="mt-2 text-[10px] text-zinc-500 text-center">Réponse en moyenne sous 10 min • Abidjan 🇨🇮</p>
             </div>

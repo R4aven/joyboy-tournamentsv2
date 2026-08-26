@@ -5,7 +5,7 @@ import Link from "next/link";
 import { Swords, Users, Trophy, Flame, Search, Crown, Zap, Eye, Loader2, Gamepad2, Filter } from "lucide-react";
 import PlayerSearch from "@/components/1v1/PlayerSearch";
 import { createClient } from "@/lib/supabase/client";
-import { createChallengeLogic, ETOURNOIS_CI_CI_CONFIG } from "@/lib/1v1/challengeLogic";
+import { createChallengeLogic, ETOURNOIS_CI_CONFIG } from "@/lib/1v1/challengeLogic";
 import type { PlayerStats } from "@/lib/1v1/challengeLogic";
 import { getPlayerPalmares } from "@/lib/1v1/challengeLogic";
 import { toast } from "sonner";
@@ -272,7 +272,7 @@ Passe en prod quand Supabase sera setup.`);
                 <span className="bg-gradient-to-r from-[#A855F7] to-[#06B6D4] bg-clip-text text-transparent">patron ?</span>
               </h2>
               <p className="mt-2 text-sm text-zinc-400">
-                Tape le pseudo de ton adversaire, on lui envoie le défi direct. 500 FCFA par joueur via Wave uniquement : <span className="text-white font-semibold">{ETOURNOIS_CI_CI_CONFIG.wave}</span>. Pas de blabla, que du jeu 🇨🇮
+                Tape le pseudo de ton adversaire, on lui envoie le défi direct. 500 FCFA par joueur via Wave uniquement : <span className="text-white font-semibold">{ETOURNOIS_CI_CONFIG.wave}</span>. Pas de blabla, que du jeu 🇨🇮
               </p>
             </div>
 
@@ -362,10 +362,10 @@ Passe en prod quand Supabase sera setup.`);
             </div>
             <div>
               <div className="font-semibold text-white">Paiement Wave uniquement - 500 FCFA par joueur</div>
-              <div className="text-xs text-zinc-400">Numéro E-TOURNOIS CI: {ETOURNOIS_CI_CI_CONFIG.wave} • Preuve obligatoire • Support WhatsApp {ETOURNOIS_CI_CI_CONFIG.whatsapp}</div>
+              <div className="text-xs text-zinc-400">Numéro E-TOURNOIS CI: {ETOURNOIS_CI_CONFIG.wave} • Preuve obligatoire • Support WhatsApp {ETOURNOIS_CI_CONFIG.whatsapp}</div>
             </div>
           </div>
-          <a href={ETOURNOIS_CI_CI_CONFIG.whatsappLink} target="_blank" className="rounded-full bg-white text-black px-4 py-2 text-xs font-bold hover:bg-zinc-100 transition">
+          <a href={ETOURNOIS_CI_CONFIG.whatsappLink} target="_blank" className="rounded-full bg-white text-black px-4 py-2 text-xs font-bold hover:bg-zinc-100 transition">
             Besoin d'aide ? WhatsApp
           </a>
         </div>
