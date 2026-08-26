@@ -4,7 +4,7 @@
  * Wave unique: 01 51 42 99 18 | WhatsApp: 07 48 23 52 26
  */
 
-export const E-TOURNOIS CI_CONFIG = {
+export const ETOURNOIS_CI_CONFIG = {
   prix1v1: 500,
   wave: "01 51 42 99 18",
   waveNom: "E-TOURNOIS CI",

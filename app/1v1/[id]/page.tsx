@@ -5,7 +5,7 @@ import Link from "next/link";
 import { useParams } from "next/navigation";
 import { ArrowLeft, Swords, Calendar, Clock, Wallet, Trophy, AlertTriangle, CheckCircle, Flame, Crown, MapPin, FileText, MessageCircle, Flag } from "lucide-react";
 import { createClient } from "@/lib/supabase/client";
-import { STATUT_LABELS, formatMatchDate, E-TOURNOIS CI_CONFIG, REGLEMENT_1V1_DEFAULT } from "@/lib/1v1/challengeLogic";
+import { STATUT_LABELS, formatMatchDate, ETOURNOIS_CI_CI_CONFIG, REGLEMENT_1V1_DEFAULT } from "@/lib/1v1/challengeLogic";
 import type { Challenge1v1, PlayerStats } from "@/lib/1v1/challengeLogic";
 import { confirmMatchLogic, submitResultLogic } from "@/lib/1v1/challengeLogic";
 import { cn } from "@/lib/utils/cn";
@@ -267,7 +267,7 @@ export default function MatchPage() {
                   {match.paiement_challenged ? <CheckCircle className="h-5 w-5 text-emerald-400" /> : <span className="text-xs text-zinc-500">En attente</span>}
                 </div>
               </div>
-              <p className="mt-3 text-xs text-zinc-500">Wave unique E-TOURNOIS CI: <span className="font-semibold text-white">{E-TOURNOIS CI_CONFIG.wave}</span> - 500 FCFA chacun. Chaque joueur doit uploader sa preuve.</p>
+              <p className="mt-3 text-xs text-zinc-500">Wave unique E-TOURNOIS CI: <span className="font-semibold text-white">{ETOURNOIS_CI_CI_CONFIG.wave}</span> - 500 FCFA chacun. Chaque joueur doit uploader sa preuve.</p>
               {["ACCEPTE", "PAIEMENT_EN_COURS", "PAIEMENT_PARTIEL"].includes(match.statut) && (
                 <Link href={`/1v1/${match.id}/payment`} className="mt-4 inline-flex w-full justify-center rounded-full bg-white text-black py-2.5 text-sm font-bold hover:bg-zinc-100 transition">Aller au paiement</Link>
               )}
@@ -306,7 +306,7 @@ export default function MatchPage() {
                 {match.statut === "CONTESTE" && (
                   <div className="mt-4 rounded-xl border border-red-500/20 bg-red-500/10 p-3 flex gap-2 text-xs text-red-200/80">
                     <AlertTriangle className="h-4 w-4 text-red-400 shrink-0" />
-                    <div>{match.contestation_raison || "Déclarations différentes - contacte le staff sur WhatsApp"}<br /><a href={E-TOURNOIS CI_CONFIG.whatsappLink} target="_blank" className="underline">WhatsApp {E-TOURNOIS CI_CONFIG.whatsapp}</a></div>
+                    <div>{match.contestation_raison || "Déclarations différentes - contacte le staff sur WhatsApp"}<br /><a href={ETOURNOIS_CI_CI_CONFIG.whatsappLink} target="_blank" className="underline">WhatsApp {ETOURNOIS_CI_CI_CONFIG.whatsapp}</a></div>
                   </div>
                 )}
               </div>
@@ -330,7 +330,7 @@ export default function MatchPage() {
                 <div className="flex justify-between"><span className="text-zinc-500">Date</span><span className="text-white">{match.date_match ? new Date(match.date_match).toLocaleDateString("fr-CI") : "À définir"}</span></div>
                 <div className="flex justify-between"><span className="text-zinc-500">Heure</span><span className="text-white flex items-center gap-1"><Clock className="h-3 w-3" />{match.heure_match || "--:--"}</span></div>
                 <div className="flex justify-between"><span className="text-zinc-500">Mise</span><span className="text-white">500 FCFA x2</span></div>
-                <div className="flex justify-between"><span className="text-zinc-500">Wave</span><span className="text-white font-mono">{E-TOURNOIS CI_CONFIG.wave}</span></div>
+                <div className="flex justify-between"><span className="text-zinc-500">Wave</span><span className="text-white font-mono">{ETOURNOIS_CI_CI_CONFIG.wave}</span></div>
                 <div className="flex justify-between"><span className="text-zinc-500">Statut</span><span className={cn("rounded-full px-2 py-0.5 text-xs border", STATUT_LABELS[match.statut].bg, STATUT_LABELS[match.statut].color)}>{STATUT_LABELS[match.statut].label}</span></div>
               </div>
             </div>
@@ -343,7 +343,7 @@ export default function MatchPage() {
             <div className="rounded-[20px] border border-[#7C3AED]/20 bg-[#7C3AED]/5 p-5">
               <h4 className="text-sm font-semibold text-white flex items-center gap-2"><MessageCircle className="h-4 w-4 text-[#A855F7]" /> Support E-TOURNOIS CI</h4>
               <p className="mt-2 text-xs text-zinc-400 leading-relaxed">Un souci ? Connexion, litige, paiement ? On gère tout sur WhatsApp, réponse rapide.</p>
-              <a href={E-TOURNOIS CI_CONFIG.whatsappLink} target="_blank" className="mt-3 inline-flex w-full justify-center rounded-full bg-white text-black py-2.5 text-sm font-bold hover:bg-zinc-100 transition">WhatsApp {E-TOURNOIS CI_CONFIG.whatsapp}</a>
+              <a href={ETOURNOIS_CI_CI_CONFIG.whatsappLink} target="_blank" className="mt-3 inline-flex w-full justify-center rounded-full bg-white text-black py-2.5 text-sm font-bold hover:bg-zinc-100 transition">WhatsApp {ETOURNOIS_CI_CI_CONFIG.whatsapp}</a>
               <div className="mt-3 flex items-center gap-2 text-[11px] text-zinc-500"><MapPin className="h-3 w-3" /> Abidjan, Côte d'Ivoire 🇨🇮</div>
             </div>
 
