@@ -1,7 +1,7 @@
 
 /**
- * 🇨🇮 E-TOURNOIS CI - Logique métier Match Salon eFootball
- * VRAIE LOGIQUE, pas de simulation. E-TOURNOIS CI organise seulement.
+ * 🇨🇮 JOYBOY - Logique métier Match Salon eFootball
+ * VRAIE LOGIQUE, pas de simulation. JOYBOY organise seulement.
  */
 import type {
   SalonInfo,
@@ -144,7 +144,7 @@ export function checkDeclarationsMatch(decA: ResultDeclaration, decB: ResultDecl
     // cohérence de isVictory optionnelle mais logique : si A gagne 3-1, A isVictory true, B isVictory false
     const winnerId = decA.scoreA > decA.scoreB ? "PLAYER_A" : decA.scoreA < decA.scoreB ? "PLAYER_B" : "DRAW";
     // On retourne l'id réel du gagnant en cherchant dans les déclarations
-    const realWinnerId = decA.scoreA > decA.scoreB ? decA.playerId && decA.scoreA > decA.scoreB ? (decA.scoreA > decA.scoreB ? (winnerId === "PLAYER_A" ? decA.scoreA > decA.scoreB ? "" : "") : "") : "" : "" : "";
+    const realWinnerId = decA.scoreA > decA.scoreB ? decA.playerId : decA.scoreA < decA.scoreB ? "__PLAYER_B__" : "__DRAW__";
     // Plus simple : on détermine winner via score
     let winnerPlayerId: string;
     if (decA.scoreA > decA.scoreB) {
@@ -272,7 +272,7 @@ export function updateBracketAfterWin(input: {
   tournamentId: string;
   winnerId: string;
 }): { nextMatchId: string | null; shouldNotify: string[] } {
-  // E-TOURNOIS CI organise seulement - ici on prépare la progression bracket, sans simuler eFootball
+  // JOYBOY organise seulement - ici on prépare la progression bracket, sans simuler eFootball
   // Retourne l'ID du prochain match où le winner doit être placé
   // Implémentation côté serveur: update bracket_data JSONB du tournament
   // Pour le mock, on retourne null = à implémenter avec Supabase
@@ -349,7 +349,7 @@ export function generateMockMatch(matchId: string): EfootballMatch {
     type: matchId.startsWith("t") ? "TOURNOI" : "1V1",
     status: "PROGRAMME" as MatchStatus,
     tournament_id: "tournoi-123",
-    tournament_title: "E-TOURNOIS CI CUP #15 - eFootball",
+    tournament_title: "JOYBOY CUP #15 - eFootball",
     bracket_round: "QUARTS DE FINALE",
     scheduled_at: scheduled.toISOString(),
     player_a: mockA,
