@@ -306,7 +306,7 @@ export default function ProfilePage() {
               </div>
 
               <p className="max-w-[520px] text-[13px] leading-relaxed text-zinc-400">
-                {profile.bio || `Joueur JOYBOY depuis ${new Date(profile.created_at).toLocaleDateString("fr-FR", { month: "long", year: "numeric" })}. Abidjan représente. 🧢`}
+                {profile.bio || `Joueur E-TOURNOIS CI depuis ${new Date(profile.created_at).toLocaleDateString("fr-FR", { month: "long", year: "numeric" })}. Abidjan représente. 🧢`}
               </p>
 
               <div className="flex flex-wrap items-center gap-2 pt-1">
@@ -424,7 +424,7 @@ export default function ProfilePage() {
                   ) : tournaments.slice(0, 5).map((t) => (
                     <div key={t.id} className="flex items-center justify-between rounded-xl bg-[#0F0F14] border border-[#22222F]/60 px-4 py-3">
                       <div>
-                        <p className="text-[13px] font-semibold text-white">{(t.tournaments as any)?.name ?? "Tournoi JOYBOY"}</p>
+                        <p className="text-[13px] font-semibold text-white">{(t.tournaments as any)?.name ?? "Tournoi E-TOURNOIS CI"}</p>
                         <p className="text-[11px] text-zinc-500">{(t.tournaments as any)?.game ?? "FIFA"} • {(t.tournaments as any)?.status ?? "terminé"}</p>
                       </div>
                       <span className="rounded-full bg-[#15151E] border border-[#22222F] px-2.5 py-1 text-[11px] font-bold text-zinc-300">{t.position ? `#${t.position}` : "Participant"}</span>
@@ -472,7 +472,7 @@ export default function ProfilePage() {
                     <div className="flex items-center gap-3">
                       <div className="h-11 w-11 rounded-xl bg-gradient-to-br from-[#7C3AED]/20 to-[#06B6D4]/20 border border-[#7C3AED]/20 flex items-center justify-center"><Trophy className="h-5 w-5 text-[#7C3AED]" /></div>
                       <div>
-                        <p className="text-[14px] font-bold text-white">{(t.tournaments as any)?.name ?? "JOYBOY CUP"}</p>
+                        <p className="text-[14px] font-bold text-white">{(t.tournaments as any)?.name ?? "E-TOURNOIS CI CUP"}</p>
                         <p className="text-[12px] text-zinc-500">{(t.tournaments as any)?.game ?? "FIFA"} • {new Date(t.created_at).toLocaleDateString("fr-FR")}</p>
                       </div>
                     </div>
@@ -569,7 +569,7 @@ export default function ProfilePage() {
 
           <div className="rounded-[20px] border border-[#22222F] bg-[#101015] p-5">
             <h4 className="text-[12px] font-black uppercase tracking-widest text-zinc-500">Besoin d&apos;aide ?</h4>
-            <p className="mt-2 text-[12px] leading-relaxed text-zinc-400">Contacte l&apos;équipe JOYBOY sur WhatsApp, on répond vite. On est à Abidjan, on connaît le game.</p>
+            <p className="mt-2 text-[12px] leading-relaxed text-zinc-400">Contacte l&apos;équipe E-TOURNOIS CI sur WhatsApp, on répond vite. On est à Abidjan, on connaît le game.</p>
             <a href="https://wa.me/2250748235226" target="_blank" className="mt-3 flex h-10 w-full items-center justify-center gap-2 rounded-xl bg-[#15151E] border border-[#22222F] text-[13px] font-bold text-white hover:border-[#7C3AED]/40 transition-colors">
               <MessageCircle className="h-4 w-4" /> WhatsApp 07 48 23 52 26
             </a>

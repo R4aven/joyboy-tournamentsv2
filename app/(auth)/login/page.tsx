@@ -130,7 +130,7 @@ export default function LoginPage() {
           <div className="mb-8 lg:hidden">
             <div className="flex items-center gap-2.5 mb-4">
               <div className="h-9 w-9 rounded-xl bg-gradient-to-br from-[#7C3AED] to-[#06B6D4] flex items-center justify-center font-black text-white">J</div>
-              <span className="font-black tracking-tight">JOYBOY TOURNAMENTS 🇨🇮</span>
+              <span className="font-black tracking-tight">E-TOURNOIS CI 🇨🇮</span>
             </div>
             <h1 className="text-[30px] font-black tracking-tighter leading-none">Bon retour champion !</h1>
             <p className="mt-2 text-[14px] text-zinc-400">On t’attendait dans l’arène.</p>

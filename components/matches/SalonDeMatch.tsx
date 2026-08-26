@@ -1,9 +1,9 @@
 
 "use client";
 /**
- * 🇨🇮 JOYBOY - SalonDeMatch.tsx
+ * 🇨🇮 E-TOURNOIS CI - SalonDeMatch.tsx
  * Affiche infos salon eFootball UNIQUEMENT si user est joueur A/B ou admin.
- * JOYBOY organise seulement - pas d\'API eFootball.
+ * E-TOURNOIS CI organise seulement - pas d\'API eFootball.
  */
 import { useState } from "react";
 import { Copy, Eye, EyeOff, Lock, ShieldCheck, Gamepad2, Info, Check, AlertTriangle, Clock } from "lucide-react";
@@ -70,7 +70,7 @@ export default function SalonDeMatch({ match, canView, currentUserId, onCreateSa
         <h3 className="mt-4 text-[14px] font-black tracking-wide">SALON PRIVÉ</h3>
         <p className="mt-2 text-[12px] leading-relaxed text-zinc-500 max-w-sm mx-auto">
           Les infos de connexion eFootball sont visibles uniquement par les 2 joueurs + admin.
-          <br />JOYBOY organise seulement - les joueurs jouent réellement sur eFootball.
+          <br />E-TOURNOIS CI organise seulement - les joueurs jouent réellement sur eFootball.
         </p>
         <div className="mt-4 inline-flex items-center gap-2 rounded-full border border-amber-500/20 bg-amber-500/10 px-3 py-1 text-[10px] font-bold text-amber-300">
           <ShieldCheck className="h-3.5 w-3.5" /> RLS Supabase + vérif user.id
@@ -133,7 +133,7 @@ export default function SalonDeMatch({ match, canView, currentUserId, onCreateSa
           <div className="flex items-start gap-2 rounded-xl border border-amber-500/20 bg-amber-500/5 p-3">
             <Info className="mt-0.5 h-4 w-4 shrink-0 text-amber-400" />
             <p className="text-[11px] leading-relaxed text-zinc-400">
-              <span className="font-bold text-amber-300">IMPORTANT:</span> JOYBOY organise seulement. Tu joues réellement sur eFootball, puis tu reviens confirmer ici. Pas d\'API eFootball.
+              <span className="font-bold text-amber-300">IMPORTANT:</span> E-TOURNOIS CI organise seulement. Tu joues réellement sur eFootball, puis tu reviens confirmer ici. Pas d\'API eFootball.
             </p>
           </div>
 
@@ -283,7 +283,7 @@ export default function SalonDeMatch({ match, canView, currentUserId, onCreateSa
         )}
 
         <div className="flex items-center gap-2 text-[10px] text-zinc-600 justify-center pt-1">
-          <AlertTriangle className="h-3 w-3" /> Jamais public. RLS: (player_id IN OR is_admin). JOYBOY n\'accède pas à eFootball.
+          <AlertTriangle className="h-3 w-3" /> Jamais public. RLS: (player_id IN OR is_admin). E-TOURNOIS CI n\'accède pas à eFootball.
         </div>
       </div>
     </div>

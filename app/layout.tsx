@@ -9,11 +9,11 @@ const inter = Inter({ subsets: ["latin"], variable: "--font-inter" });
 const space = Space_Grotesk({ subsets: ["latin"], variable: "--font-space" });
 
 export const metadata: Metadata = {
-  title: "JOYBOY TOURNAMENTS 🇨🇮 | Plateforme e-sport Ivoirienne #1",
+  title: "E-TOURNOIS CI 🇨🇮 | Plateforme e-sport Ivoirienne #1",
   description:
-    "JOYBOY TOURNAMENTS - La première plateforme de tournois e-sport 100% ivoirienne. Défie les meilleurs joueurs d'Abidjan, participe aux tournois, gagne tes gains via Wave. Paiement Wave: 01 51 42 99 18 | WhatsApp: 07 48 23 52 26",
+    "E-TOURNOIS CI - La première plateforme de tournois e-sport 100% ivoirienne. Défie les meilleurs joueurs d'Abidjan, participe aux tournois, gagne tes gains via Wave. Paiement Wave: 01 51 42 99 18 | WhatsApp: 07 48 23 52 26",
   keywords: [
-    "JOYBOY",
+    "E-TOURNOIS CI",
     "tournois e-sport",
     "Côte d'Ivoire",
     "Abidjan",
@@ -25,17 +25,17 @@ export const metadata: Metadata = {
     "Wave",
   ],
   openGraph: {
-    title: "JOYBOY TOURNAMENTS 🇨🇮",
+    title: "E-TOURNOIS CI 🇨🇮",
     description: "La scène e-sport ivoirienne se joue ici. Tournois, 1V1, classements, gains Wave.",
     type: "website",
     locale: "fr_CI",
   },
   twitter: {
     card: "summary_large_image",
-    title: "JOYBOY TOURNAMENTS 🇨🇮",
+    title: "E-TOURNOIS CI 🇨🇮",
     description: "La plateforme e-sport #1 en Côte d'Ivoire",
   },
-  metadataBase: new URL("https://joyboytournaments.ci"),
+  metadataBase: new URL("https://e-tournois-ci.ci"),
 };
 
 export default function RootLayout({

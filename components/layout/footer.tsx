@@ -24,7 +24,7 @@ export function Footer() {
               <Crown className="h-3 w-3" /> Tournois 100% Ivoirien
             </Badge>
             <h3 className="text-[22px] lg:text-[26px] font-bold tracking-tight text-white leading-tight">
-              Prêt à devenir le prochain <span className="bg-gradient-to-br from-[#A855F7] to-[#06B6D4] bg-clip-text text-transparent">JoyBoy</span> ?
+              Prêt à devenir le prochain <span className="bg-gradient-to-br from-[#A855F7] to-[#06B6D4] bg-clip-text text-transparent">E-TOURNOIS CI</span> ?
             </h3>
             <p className="mt-2 text-[13.5px] text-zinc-400 max-w-[520px] leading-relaxed">
               Rejoins la communauté gaming la plus chaude d'Abidjan. Inscriptions via Wave, support direct sur WhatsApp. On gère tout pour toi.
@@ -58,7 +58,7 @@ export function Footer() {
               </div>
               <div className="flex flex-col leading-none">
                 <span className="text-[14px] font-black tracking-tight text-white">
-                  JOYBOY <span className="text-[#A855F7]">TOURNAMENTS</span>
+                  E-TOURNOIS CI <span className="text-[#A855F7]">TOURNAMENTS</span>
                 </span>
                 <span className="text-[10px] font-semibold tracking-widest text-zinc-500 uppercase">Abidjan • CI 🇨🇮</span>
               </div>
@@ -169,7 +169,7 @@ export function Footer() {
         {/* Bottom bar */}
         <div className="flex flex-col lg:flex-row items-center justify-between gap-4 border-t border-white/[0.06] py-6">
           <p className="text-[12.5px] text-zinc-500">
-            © {new Date().getFullYear()} JOYBOY TOURNAMENTS. Tous droits réservés. Fièrement Ivoirien 🇨🇮 • Que du vrai game, pas de calculs compliqués.
+            © {new Date().getFullYear()} E-TOURNOIS CI. Tous droits réservés. Fièrement Ivoirien 🇨🇮 • Que du vrai game, pas de calculs compliqués.
           </p>
           <div className="flex items-center gap-4 text-[12px]">
             <span className="inline-flex items-center gap-1.5 rounded-full bg-[#15151E] border border-[#22222F] px-3 py-1 text-zinc-400">

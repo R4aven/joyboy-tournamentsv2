@@ -1,13 +1,13 @@
 /**
- * 🇨🇮 JOYBOY TOURNAMENTS - Logique 1V1 Direct
+ * 🇨🇮 E-TOURNOIS CI - Logique 1V1 Direct
  * Gestion complète du workflow défi -> paiement -> match -> résultat
  * Wave unique: 01 51 42 99 18 | WhatsApp: 07 48 23 52 26
  */
 
-export const JOYBOY_CONFIG = {
+export const E-TOURNOIS CI_CONFIG = {
   prix1v1: 500,
   wave: "01 51 42 99 18",
-  waveNom: "JOYBOY TOURNAMENTS",
+  waveNom: "E-TOURNOIS CI",
   whatsapp: "07 48 23 52 26",
   whatsappLink: "https://wa.me/2250748235226",
 };
@@ -87,7 +87,7 @@ export const REGLEMENT_1V1_DEFAULT = `
 5. Preuve de résultat par screen (optionnel mais conseillé).
 6. Respect total - trash talk marrant oui, insulte gamin non. On est là pour kiffer.
 7. Heure respectée : 15 min de retard max, sinon forfait.
-8. Litige : équipe JOYBOY tranche via WhatsApp au 07 48 23 52 26.
+8. Litige : équipe E-TOURNOIS CI tranche via WhatsApp au 07 48 23 52 26.
 `.trim();
 
 // --- HELPERS ---
@@ -384,7 +384,7 @@ export function validerSiDeclarationsCorrespondent(
   return {
     valide: false,
     gagnant: null,
-    raison: "CONTESTE - déclarations différentes, staff JOYBOY va trancher",
+    raison: "CONTESTE - déclarations différentes, staff E-TOURNOIS CI va trancher",
   };
 }
 

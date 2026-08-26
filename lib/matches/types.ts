@@ -1,7 +1,7 @@
 
 /**
- * 🇨🇮 JOYBOY TOURNAMENTS - Types Match Salon eFootball
- * IMPORTANT: JOYBOY organise seulement. Pas d'API eFootball. Les joueurs jouent réellement sur eFootball.
+ * 🇨🇮 E-TOURNOIS CI - Types Match Salon eFootball
+ * IMPORTANT: E-TOURNOIS CI organise seulement. Pas d'API eFootball. Les joueurs jouent réellement sur eFootball.
  */
 
 export type MatchType = "TOURNOI" | "1V1";

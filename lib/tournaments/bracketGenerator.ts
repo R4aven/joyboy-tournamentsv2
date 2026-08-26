@@ -1,4 +1,4 @@
-// 🇨🇮 JOYBOY TOURNAMENTS - BRACKET 10 JOUEURS RÉEL
+// 🇨🇮 E-TOURNOIS CI - BRACKET 10 JOUEURS RÉEL
 // 10 joueurs → phase préliminaire 2 matchs (7v10, 8v9) → 8 joueurs → quarts (4) → demis (2) → finale (1) = 9 matchs
 // Aucun joueur en double, déterministe, injection auto vainqueur
 

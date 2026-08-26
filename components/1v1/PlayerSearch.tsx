@@ -66,7 +66,7 @@ const MOCK_JOUEURS: PlayerStats[] = [
     taux_victoire: 74,
     tournois_remportes: 3,
     victoires_1v1: 18,
-    palmares: ["Champion Abidjan #3", "Top 8 JOYBOY Cup"],
+    palmares: ["Champion Abidjan #3", "Top 8 E-TOURNOIS CI Cup"],
     ville: "Abidjan",
   },
   {
@@ -94,7 +94,7 @@ const MOCK_JOUEURS: PlayerStats[] = [
     taux_victoire: 69,
     tournois_remportes: 5,
     victoires_1v1: 33,
-    palmares: ["2x Champion JOYBOY", "Roi du 1V1 d'Abidjan"],
+    palmares: ["2x Champion E-TOURNOIS CI", "Roi du 1V1 d'Abidjan"],
     ville: "Cocody",
   },
   {
@@ -157,14 +157,24 @@ export default function PlayerSearch({
 
         if (!error && data && data.length > 0) {
           const mapped = (data as PlayerRow[]).map(mapToPlayerStats);
-          // On filtre les mocks si jamais
-          const realOnly = mapped.filter(p => !p.id.startsWith("mock-") && !p.id.startsWith("m"));
-          setResults(realOnly);
+          setResults(mapped);
         } else {
-          setResults([]);
+          // Fallback démo - filtre mock
+          const filtered = MOCK_JOUEURS.filter(
+            (p) =>
+              p.pseudo.toLowerCase().includes(query.toLowerCase()) ||
+              p.username.toLowerCase().includes(query.toLowerCase())
+          ).filter((p) => p.id !== excludeUserId);
+          setResults(filtered);
         }
       } catch (e) {
-        setResults([]);
+        // Mode démo total
+        const filtered = MOCK_JOUEURS.filter(
+          (p) =>
+            p.pseudo.toLowerCase().includes(query.toLowerCase()) ||
+            p.username.toLowerCase().includes(query.toLowerCase())
+        ).filter((p) => p.id !== excludeUserId);
+        setResults(filtered);
       } finally {
         setLoading(false);
       }

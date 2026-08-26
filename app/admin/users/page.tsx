@@ -172,7 +172,7 @@ export default function AdminUsersPage() {
           <table className="w-full text-[13px]">
             <thead className="bg-[#0E0E14] text-[10px] uppercase tracking-widest text-zinc-500 border-b border-[#22222F]">
               <tr>
-                <th className="px-4 py-3 text-left">Joueur (pseudo JOYBOY)</th>
+                <th className="px-4 py-3 text-left">Joueur (pseudo E-TOURNOIS CI)</th>
                 <th className="px-4 py-3 text-left">Email</th>
                 <th className="px-4 py-3 text-left flex items-center gap-1"><Phone className="h-3 w-3 text-emerald-400" /> WhatsApp</th>
                 <th className="px-4 py-3 text-left"><span className="flex items-center gap-1"><Gamepad2 className="h-3 w-3 text-violet-400" /> eFootball</span></th>
@@ -268,7 +268,7 @@ export default function AdminUsersPage() {
 
       <div className="rounded-xl border border-[#22222F] bg-[#15151E] p-4 flex gap-3">
         <Shield className="h-4 w-4 text-[#7C3AED] mt-0.5" />
-        <p className="text-[11px] leading-relaxed text-zinc-400">Filtre recherche : pseudo JOYBOY, email, <span className="text-emerald-400 font-bold">WhatsApp</span>, <span className="text-violet-400 font-bold">eFootball</span>, <span className="text-cyan-400 font-bold">Wave perso</span>. Tout est reçu côté admin pour payer les djai via Wave. 🇨🇮</p>
+        <p className="text-[11px] leading-relaxed text-zinc-400">Filtre recherche : pseudo E-TOURNOIS CI, email, <span className="text-emerald-400 font-bold">WhatsApp</span>, <span className="text-violet-400 font-bold">eFootball</span>, <span className="text-cyan-400 font-bold">Wave perso</span>. Tout est reçu côté admin pour payer les djai via Wave. 🇨🇮</p>
       </div>
     </div>
   );

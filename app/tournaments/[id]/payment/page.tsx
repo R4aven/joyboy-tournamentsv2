@@ -54,7 +54,7 @@ export default function TournamentPaymentPage() {
           <div className="mt-6 rounded-[20px] border border-[#7C3AED]/30 bg-gradient-to-br from-[#7C3AED]/15 to-[#06B6D4]/10 p-6">
             <p className="text-[11px] font-black uppercase tracking-widest text-zinc-400">Numéro Wave officiel</p>
             <div className="mt-3 flex items-center justify-between rounded-xl bg-black/30 border border-white/10 px-4 py-4">
-              <div><p className="text-[22px] font-black tracking-wide">01 51 42 99 18</p><p className="text-[11px] text-zinc-400">JOYBOY TOURNAMENTS • Wave CI</p></div>
+              <div><p className="text-[22px] font-black tracking-wide">01 51 42 99 18</p><p className="text-[11px] text-zinc-400">E-TOURNOIS CI • Wave CI</p></div>
               <button onClick={()=>{navigator.clipboard.writeText('0151429918'); toast.success('Numéro copié');}} className="h-10 w-10 rounded-full bg-white text-black flex items-center justify-center hover:bg-zinc-200"><Copy className="h-4 w-4" /></button>
             </div>
             <div className="mt-4 grid grid-cols-5 gap-2 text-center">
@@ -91,13 +91,13 @@ export default function TournamentPaymentPage() {
         <div className="space-y-4">
           <div className="rounded-[20px] border border-[#22222F] bg-[#15151E] p-5">
             <h4 className="text-[12px] font-black uppercase tracking-widest text-zinc-500">Récap</h4>
-            <div className="mt-3 space-y-2 text-[13px]"><div className="flex justify-between"><span className="text-zinc-500">Tournoi</span><span className="font-bold">JOYBOY CUP #12</span></div><div className="flex justify-between"><span className="text-zinc-500">Montant</span><span className="font-black text-white">{amount} FCFA</span></div><div className="flex justify-between"><span className="text-zinc-500">Méthode</span><span className="font-bold">Wave uniquement</span></div><div className="flex justify-between"><span className="text-zinc-500">Numéro</span><span className="font-bold">01 51 42 99 18</span></div></div>
+            <div className="mt-3 space-y-2 text-[13px]"><div className="flex justify-between"><span className="text-zinc-500">Tournoi</span><span className="font-bold">E-TOURNOIS CI CUP #12</span></div><div className="flex justify-between"><span className="text-zinc-500">Montant</span><span className="font-black text-white">{amount} FCFA</span></div><div className="flex justify-between"><span className="text-zinc-500">Méthode</span><span className="font-bold">Wave uniquement</span></div><div className="flex justify-between"><span className="text-zinc-500">Numéro</span><span className="font-bold">01 51 42 99 18</span></div></div>
             <div className="mt-4 rounded-xl bg-[#101015] border border-[#22222F] p-3 text-[11px] text-zinc-400">Après envoi : <span className="font-bold text-amber-300">En attente</span> → <span className="font-bold text-emerald-300">Validé</span> → Ta place est confirmée.</div>
           </div>
           <div className="rounded-[20px] border border-[#22222F] bg-[#101015] p-5">
             <h4 className="text-[12px] font-black">Besoin d'aide ?</h4>
             <p className="mt-2 text-[12px] leading-relaxed text-zinc-400">Paiement non reçu, capture floue, problème Wave ? Contacte-nous directement.</p>
-            <a href="https://wa.me/2250748235226?text=Bonjour%20JOYBOY%20TOURNAMENTS%2C%20j%27ai%20besoin%20d%27aide%20concernant%20mon%20paiement%20tournoi%20${params.id}%20-%20${amount}%20FCFA." target="_blank" className="mt-3 flex h-11 w-full items-center justify-center rounded-xl bg-[#25D366] text-[12px] font-black text-black">💬 WHATSAPP • 07 48 23 52 26</a>
+            <a href="https://wa.me/2250748235226?text=Bonjour%20E-TOURNOIS CI%20TOURNAMENTS%2C%20j%27ai%20besoin%20d%27aide%20concernant%20mon%20paiement%20tournoi%20${params.id}%20-%20${amount}%20FCFA." target="_blank" className="mt-3 flex h-11 w-full items-center justify-center rounded-xl bg-[#25D366] text-[12px] font-black text-black">💬 WHATSAPP • 07 48 23 52 26</a>
             <p className="mt-2 text-center text-[11px] text-zinc-600">Réponse en &lt; 15 min • 9h-23h</p>
           </div>
         </div>

@@ -96,7 +96,7 @@ export default function CreateTournamentPage() {
             <input
               value={form.nom}
               onChange={(e) => handleChange("nom", e.target.value)}
-              placeholder="Ex: JOYBOY CUP #12 - La Revanche"
+              placeholder="Ex: E-TOURNOIS CI CUP #12 - La Revanche"
               className="mt-2 w-full rounded-xl bg-[#0E0E14] border border-joy-border px-4 py-3 text-sm outline-none focus:border-joy-violet"
             />
           </div>
@@ -124,7 +124,7 @@ export default function CreateTournamentPage() {
               onChange={(e) => handleChange("places", e.target.value)}
               className="mt-2 w-full rounded-xl bg-[#0E0E14] border border-joy-border px-4 py-3 text-sm outline-none focus:border-joy-violet"
             />
-            <p className="text-[11px] text-zinc-500 mt-1">Par defaut 10, format classique JOYBOY</p>
+            <p className="text-[11px] text-zinc-500 mt-1">Par defaut 10, format classique E-TOURNOIS CI</p>
           </div>
 
           <div className="lg:col-span-2">

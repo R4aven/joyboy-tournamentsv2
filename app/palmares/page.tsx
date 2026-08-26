@@ -51,7 +51,7 @@ export default function PalmaresPage() {
     <div className="min-h-screen bg-[#08080B] text-white">
       <div className="mx-auto max-w-6xl px-4 py-8 space-y-8">
         <div className="text-center space-y-3">
-          <div className="inline-flex items-center gap-2 rounded-full bg-joy-violet/20 border border-joy-violet/30 px-4 py-1 text-xs font-bold text-joy-violet">PALMARES JOYBOY - ABIDJAN CI</div>
+          <div className="inline-flex items-center gap-2 rounded-full bg-joy-violet/20 border border-joy-violet/30 px-4 py-1 text-xs font-bold text-joy-violet">PALMARES E-TOURNOIS CI - ABIDJAN CI</div>
           <h1 className="text-4xl md:text-5xl font-black tracking-tight">
             Hall of <span className="text-gradient">Fame</span>
           </h1>

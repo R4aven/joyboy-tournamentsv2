@@ -76,7 +76,7 @@ export default function RegisterPage() {
       return;
     }
     if (!isValidUsername(cleanUsername)) {
-      toast.error("Pseudo JOYBOY invalide : 3 à 20 caractères, lettres, chiffres ou _ uniquement");
+      toast.error("Pseudo E-TOURNOIS CI invalide : 3 à 20 caractères, lettres, chiffres ou _ uniquement");
       return;
     }
     if (cleanWhatsapp.length < 8) {
@@ -100,7 +100,7 @@ export default function RegisterPage() {
       return;
     }
     if (usernameAvailable === false) {
-      toast.error("Ce pseudo JOYBOY est déjà pris. Trouve un autre blaze !");
+      toast.error("Ce pseudo E-TOURNOIS CI est déjà pris. Trouve un autre blaze !");
       return;
     }
 
@@ -193,7 +193,7 @@ export default function RegisterPage() {
         <div className="w-full max-w-[480px] my-auto">
           <div className="rounded-[24px] border border-[#22222F] bg-[#101015]/90 backdrop-blur-xl p-6 shadow-[0_0_0_1px_rgba(255,255,255,0.04)_inset,0_20px_60px_rgba(0,0,0,0.6)]">
             <div className="mb-5">
-              <h2 className="text-[24px] font-black tracking-tight text-white">Rejoins JOYBOY 🇨🇮</h2>
+              <h2 className="text-[24px] font-black tracking-tight text-white">Rejoins E-TOURNOIS CI 🇨🇮</h2>
               <p className="mt-1 text-[12px] text-zinc-400">
                 30 secondes pour jouer. Paiement gains sur Wave.
               </p>
@@ -211,10 +211,10 @@ export default function RegisterPage() {
             </div>
 
             <form onSubmit={handleRegister} className="space-y-4">
-              {/* Pseudo JOYBOY */}
+              {/* Pseudo E-TOURNOIS CI */}
               <div className="space-y-1.5">
                 <label className="text-[11px] font-bold uppercase tracking-widest text-zinc-300 flex items-center gap-1">
-                  <User className="h-3 w-3" /> Pseudo JOYBOY *{" "}
+                  <User className="h-3 w-3" /> Pseudo E-TOURNOIS CI *{" "}
                   <span className="text-red-400">OBLIGATOIRE</span>
                 </label>
                 <div className="relative group">
@@ -382,7 +382,7 @@ export default function RegisterPage() {
                   <span className="h-4 w-4 animate-spin rounded-full border-2 border-white/30 border-t-white" />
                 ) : (
                   <>
-                    CRÉER MON COMPTE JOYBOY
+                    CRÉER MON COMPTE E-TOURNOIS CI
                     <ArrowRight className="h-4 w-4 transition-transform group-hover:translate-x-0.5" />
                   </>
                 )}
@@ -410,7 +410,7 @@ export default function RegisterPage() {
         <div className="relative z-10">
           <div className="flex items-center gap-2.5">
             <div className="h-9 w-9 rounded-xl bg-gradient-to-br from-[#7C3AED] to-[#06B6D4] flex items-center justify-center font-black text-white">J</div>
-            <span className="font-black tracking-tight text-white">JOYBOY TOURNAMENTS 🇨🇮</span>
+            <span className="font-black tracking-tight text-white">E-TOURNOIS CI 🇨🇮</span>
           </div>
         </div>
 

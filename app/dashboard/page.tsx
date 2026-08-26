@@ -154,7 +154,7 @@ export default function DashboardPage() {
             setTournaments(
               tData.map((t: any) => ({
                 id: t.id,
-                name: t.tournaments?.name ?? "JOYBOY CUP",
+                name: t.tournaments?.name ?? "E-TOURNOIS CI CUP",
                 status: t.tournaments?.status ?? "finished",
                 position: t.position,
                 participants: 32,
@@ -263,7 +263,7 @@ export default function DashboardPage() {
         </div>
 
         <div className="flex gap-2">
-          <Link href="/1v1" className="inline-flex h-11 items-center justify-center gap-2 rounded-xl bg-[#15151E] border border-[#22222F] px-5 text-[13px] font-bold text-white hover:border-[#7C3AED]/40 transition-colors">
+          <Link href="/defis" className="inline-flex h-11 items-center justify-center gap-2 rounded-xl bg-[#15151E] border border-[#22222F] px-5 text-[13px] font-bold text-white hover:border-[#7C3AED]/40 transition-colors">
             <Swords className="h-4 w-4" /> Nouveau défi
           </Link>
           <Link href="/tournois" className="inline-flex h-11 items-center justify-center gap-2 rounded-xl bg-gradient-to-r from-[#7C3AED] to-[#06B6D4] px-5 text-[13px] font-bold text-white shadow-[0_0_20px_rgba(124,58,237,0.35)] hover:shadow-[0_0_30px_rgba(124,58,237,0.5)] transition-all">
@@ -336,7 +336,7 @@ export default function DashboardPage() {
                   <p className="text-[24px]">🎮</p>
                   <p className="mt-2 text-[13px] font-bold text-white">Aucun match encore</p>
                   <p className="mt-1 text-[12px] text-zinc-500">Lance ton premier défi 1V1 ou rejoins un tournoi pour commencer.</p>
-                  <Link href="/1v1" className="mt-4 inline-flex h-9 items-center justify-center rounded-xl bg-white px-4 text-[12px] font-bold text-black">Défier un joueur</Link>
+                  <Link href="/defis" className="mt-4 inline-flex h-9 items-center justify-center rounded-xl bg-white px-4 text-[12px] font-bold text-black">Défier un joueur</Link>
                 </div>
               ) : matches.map((m) => (
                 <div key={m.id} className="flex items-center justify-between rounded-xl bg-[#0F0F14] border border-[#22222F]/60 px-4 py-3.5">
@@ -365,7 +365,7 @@ export default function DashboardPage() {
                 <div className="rounded-xl bg-[#0F0F14] border border-dashed border-[#22222F] p-6 text-center">
                   <Trophy className="mx-auto h-6 w-6 text-zinc-600" />
                   <p className="mt-2 text-[13px] font-bold text-white">Pas encore de tournoi</p>
-                  <p className="text-[12px] text-zinc-500">Les tournois JOYBOY arrivent chaque week-end. Inscris-toi tôt !</p>
+                  <p className="text-[12px] text-zinc-500">Les tournois E-TOURNOIS CI arrivent chaque week-end. Inscris-toi tôt !</p>
                 </div>
               ) : tournaments.map((t) => (
                 <div key={t.id} className="rounded-xl bg-[#0F0F14] border border-[#22222F]/60 p-4 flex items-center justify-between">
@@ -438,14 +438,9 @@ export default function DashboardPage() {
                 <p className="text-[10px] font-bold uppercase tracking-widest text-zinc-500">Taux</p>
               </div>
             </div>
-            <div className="mt-4 grid grid-cols-2 gap-2">
-              <Link href={`/profile/${profile?.username ?? ""}`} className="flex h-10 w-full items-center justify-center gap-2 rounded-xl bg-[#15151E] border border-[#22222F] text-[12px] font-bold text-zinc-300 hover:text-white transition-colors">
-                <BarChart3 className="h-4 w-4" /> Voir mon profil
-              </Link>
-              <Link href="/dashboard/edit" className="flex h-10 w-full items-center justify-center gap-2 rounded-xl bg-white text-black text-[12px] font-bold hover:bg-zinc-100 transition-colors">
-                Modifier
-              </Link>
-            </div>
+            <Link href={`/profile/${profile?.username ?? ""}`} className="mt-4 flex h-10 w-full items-center justify-center gap-2 rounded-xl bg-[#15151E] border border-[#22222F] text-[12px] font-bold text-zinc-300 hover:text-white transition-colors">
+              <BarChart3 className="h-4 w-4" /> Voir mon profil public
+            </Link>
           </div>
 
           {/* Mes gains */}
@@ -497,7 +492,7 @@ export default function DashboardPage() {
           </div>
 
           <div className="rounded-[20px] border border-[#22222F] bg-[#101015] p-5">
-            <h4 className="text-[12px] font-black uppercase tracking-widest text-zinc-500">Support JOYBOY</h4>
+            <h4 className="text-[12px] font-black uppercase tracking-widest text-zinc-500">Support E-TOURNOIS CI</h4>
             <p className="mt-2 text-[12px] leading-relaxed text-zinc-400">Un souci avec un match, un paiement Wave ou un adversaire ? On est là.</p>
             <div className="mt-3 space-y-2 text-[12px]">
               <div className="flex items-center gap-2 rounded-xl bg-[#0F0F14] border border-[#22222F]/60 p-3"><div className="h-8 w-8 rounded-full bg-[#06B6D4]/15 flex items-center justify-center"><Wallet className="h-4 w-4 text-[#06B6D4]" /></div><div><p className="font-bold text-white">Wave</p><p className="text-zinc-400">01 51 42 99 18</p></div></div>

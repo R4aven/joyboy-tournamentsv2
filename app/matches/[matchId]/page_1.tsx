@@ -150,7 +150,7 @@ export default function MatchSalonPage() {
         <div className="mt-6 rounded-[20px] border border-[#22222F] bg-[#101015] p-6">
           <div className="flex items-center justify-between flex-wrap gap-3">
             <div className="flex items-center gap-3">
-              <span className="rounded-full bg-amber-500/10 text-amber-300 border border-amber-500/20 px-3 py-1 text-[10px] font-black">TOURNOI • JOYBOY CUP #12 • Quarts</span>
+              <span className="rounded-full bg-amber-500/10 text-amber-300 border border-amber-500/20 px-3 py-1 text-[10px] font-black">TOURNOI • E-TOURNOIS CI CUP #12 • Quarts</span>
               <span className={`rounded-full px-3 py-1 text-[10px] font-black border ${getStatusColor(statut)}`}>{getStatusLabel(statut)}</span>
             </div>
             <span className="text-[11px] text-zinc-500 flex items-center gap-1"><Clock className="h-3 w-3" /> Temps restant: {timeLeft}</span>
@@ -199,17 +199,17 @@ export default function MatchSalonPage() {
         {/* SALON PRIVÉ - RLS SÉCURISÉ */}
         <div className="mt-6 rounded-[20px] border border-[#7C3AED]/30 bg-gradient-to-br from-[#7C3AED]/10 to-[#06B6D4]/10 p-6">
           <h3 className="text-[14px] font-black flex items-center gap-2">🔒 Salon eFootball privé</h3>
-          <p className="mt-2 text-[12px] leading-relaxed text-zinc-300">Chaque rencontre JOYBOY doit utiliser un salon eFootball privé réservé exclusivement aux deux joueurs concernés. Les informations de connexion ne doivent jamais être visibles publiquement.</p>
+          <p className="mt-2 text-[12px] leading-relaxed text-zinc-300">Chaque rencontre E-TOURNOIS CI doit utiliser un salon eFootball privé réservé exclusivement aux deux joueurs concernés. Les informations de connexion ne doivent jamais être visibles publiquement.</p>
           <div className="mt-3 rounded-xl bg-amber-500/10 border border-amber-500/20 p-3 flex gap-2">
             <AlertTriangle className="h-4 w-4 text-amber-400 shrink-0 mt-0.5" />
-            <p className="text-[11px] leading-relaxed text-amber-200"><span className="font-black">Pourquoi privé ?</span> Parce qu'un salon public pourrait permettre à un autre joueur de venir perturber le match ou rejoindre la rencontre. JOYBOY ne doit pas afficher un faux salon privé : il gère seulement les informations réellement nécessaires au mode match en ligne eFootball.</p>
+            <p className="text-[11px] leading-relaxed text-amber-200"><span className="font-black">Pourquoi privé ?</span> Parce qu'un salon public pourrait permettre à un autre joueur de venir perturber le match ou rejoindre la rencontre. E-TOURNOIS CI ne doit pas afficher un faux salon privé : il gère seulement les informations réellement nécessaires au mode match en ligne eFootball.</p>
           </div>
 
           {!canViewSalon ? (
             <div className="mt-4 rounded-xl bg-[#101015] border border-red-500/20 p-4 text-center">
               <Shield className="mx-auto h-8 w-8 text-red-400" />
               <p className="mt-2 text-[13px] font-black">🔒 Salon privé - Accès refusé</p>
-              <p className="text-[11px] text-zinc-500 mt-1">Informations visibles uniquement par {playerA.pseudo} et {playerB.pseudo} + admin. Chaque rencontre JOYBOY utilise un salon eFootball privé réservé exclusivement aux deux joueurs concernés.</p>
+              <p className="text-[11px] text-zinc-500 mt-1">Informations visibles uniquement par {playerA.pseudo} et {playerB.pseudo} + admin. Chaque rencontre E-TOURNOIS CI utilise un salon eFootball privé réservé exclusivement aux deux joueurs concernés.</p>
               <p className="text-[11px] text-zinc-600 mt-2">Tu es connecté en tant que: {currentUserId} (autre joueur) → pas autorisé. RLS Supabase bloque l'accès.</p>
             </div>
           ) : (
@@ -223,10 +223,10 @@ export default function MatchSalonPage() {
                       ) : (
                         <div className="rounded-xl bg-[#101015] border border-[#22222F] p-4 space-y-3">
                           <div><label className="text-[11px] font-bold uppercase tracking-widest text-zinc-500">ID / informations du salon eFootball *</label><input value={salonForm.salon_id} onChange={e=>setSalonForm({...salonForm, salon_id: e.target.value})} placeholder="Ex: 883472 ou RavenCI_225" className="mt-1 h-11 w-full rounded-xl border border-[#22222F] bg-[#15151E] px-4 text-[13px]" /></div>
-                          <div><label className="text-[11px] font-bold uppercase tracking-widest text-zinc-500">Code du salon (si nécessaire)</label><input value={salonForm.salon_code} onChange={e=>setSalonForm({...salonForm, salon_code: e.target.value})} placeholder="Ex: JOYBOY12" className="mt-1 h-11 w-full rounded-xl border border-[#22222F] bg-[#15151E] px-4 text-[13px]" /></div>
+                          <div><label className="text-[11px] font-bold uppercase tracking-widest text-zinc-500">Code du salon (si nécessaire)</label><input value={salonForm.salon_code} onChange={e=>setSalonForm({...salonForm, salon_code: e.target.value})} placeholder="Ex: E-TOURNOIS CI12" className="mt-1 h-11 w-full rounded-xl border border-[#22222F] bg-[#15151E] px-4 text-[13px]" /></div>
                           <div><label className="text-[11px] font-bold uppercase tracking-widest text-zinc-500">Instructions *</label><textarea value={salonForm.instructions} onChange={e=>setSalonForm({...salonForm, instructions: e.target.value})} rows={3} className="mt-1 w-full rounded-xl border border-[#22222F] bg-[#15151E] p-3 text-[13px]" /></div>
                           <div className="flex gap-2"><button onClick={handleCreateSalon} className="flex-1 h-11 rounded-xl bg-white text-black text-[12px] font-black">Enregistrer salon privé</button><button onClick={()=>setShowCreateForm(false)} className="h-11 rounded-xl border border-[#22222F] bg-[#15151E] px-4 text-[12px]">Annuler</button></div>
-                          <p className="text-[10px] text-zinc-500">⚠️ JOYBOY ne contrôle pas eFootball. Tu crées vraiment le salon sur eFootball, puis tu renseignes ici les infos pour ton adversaire. Table match_salons avec RLS: seulement toi, adversaire, admin.</p>
+                          <p className="text-[10px] text-zinc-500">⚠️ E-TOURNOIS CI ne contrôle pas eFootball. Tu crées vraiment le salon sur eFootball, puis tu renseignes ici les infos pour ton adversaire. Table match_salons avec RLS: seulement toi, adversaire, admin.</p>
                         </div>
                       )}
                     </>
@@ -332,7 +332,7 @@ export default function MatchSalonPage() {
         )}
 
         <div className="mt-8 text-center">
-          <a href="https://wa.me/2250748235226?text=Bonjour%20JOYBOY%20besoin%20d'aide%20match%20eFootball" target="_blank" className="inline-flex items-center gap-2 rounded-full bg-[#25D366] px-6 py-3 text-[13px] font-black text-black">💬 BESOIN D'AIDE ? WHATSAPP 07 48 23 52 26</a>
+          <a href="https://wa.me/2250748235226?text=Bonjour%20E-TOURNOIS CI%20besoin%20d'aide%20match%20eFootball" target="_blank" className="inline-flex items-center gap-2 rounded-full bg-[#25D366] px-6 py-3 text-[13px] font-black text-black">💬 BESOIN D'AIDE ? WHATSAPP 07 48 23 52 26</a>
           <p className="mt-2 text-[11px] text-zinc-600">Wave paiement officiel: 01 51 42 99 18 • Gains: Encaisse ton djai sur Wave ! 🇨🇮</p>
         </div>
       </div>

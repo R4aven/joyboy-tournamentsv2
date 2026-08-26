@@ -1,64 +1,34 @@
+
 "use client";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
-import { Trophy, Swords, Crown, Bell, User, Home } from "lucide-react";
-import { useEffect, useState } from "react";
-import { createClient } from "@/lib/supabase/client";
-import { useAuth } from "@/hooks/useAuth";
+import { Trophy, Swords, Crown, Bell, User, Home, Wallet } from "lucide-react";
+import { useState } from "react";
 
-function formatBadge(n: number) {
-  if (n <= 0) return null;
-  if (n > 99) return "99+";
-  return String(n);
-}
+const nav = [
+  { href: "/", label: "Accueil", icon: Home },
+  { href: "/tournaments", label: "Tournois", icon: Trophy },
+  { href: "/1v1", label: "1V1", icon: Swords },
+  { href: "/palmares", label: "Palmarès", icon: Crown },
+  { href: "/notifications", label: "Notifs", icon: Bell, badge: 3 },
+  { href: "/dashboard", label: "Profil", icon: User },
+];
 
 export default function Navbar() {
   const pathname = usePathname();
-  const supabase = createClient();
-  const { user } = useAuth();
-  const [unread, setUnread] = useState(0);
-
-  useEffect(() => {
-    if (!user) { setUnread(0); return; }
-    const fetchUnread = async () => {
-      const { count } = await supabase.from("notifications").select("id", { count: "exact", head: true }).eq("user_id", user.id).eq("is_read", false);
-      setUnread(count || 0);
-    };
-    fetchUnread();
-    const channel = supabase.channel(`nav-${user.id}`).on("postgres_changes", { event: "*", schema: "public", table: "notifications", filter: `user_id=eq.${user.id}` }, fetchUnread).subscribe();
-    return () => { supabase.removeChannel(channel); };
-  }, [user, supabase]);
-
-  const badgeText = formatBadge(unread);
-
-  const nav = [
-    { href: "/", label: "Accueil", icon: Home },
-    { href: "/tournaments", label: "Tournois", icon: Trophy },
-    { href: "/1v1", label: "1V1", icon: Swords },
-    { href: "/palmares", label: "Palmarès", icon: Crown },
-    { href: "/notifications", label: "Notifs", icon: Bell, badge: unread, badgeText },
-    { href: "/dashboard", label: "Profil", icon: User },
-  ];
-
   return (
     <>
       <header className="sticky top-0 z-50 border-b border-[#22222F]/80 bg-[#08080B]/80 backdrop-blur-xl">
         <div className="mx-auto max-w-7xl px-6 h-[64px] flex items-center justify-between">
           <Link href="/" className="flex items-center gap-3">
-            <div className="h-9 w-9 rounded-xl bg-gradient-to-br from-[#7C3AED] to-[#06B6D4] flex items-center justify-center font-black text-[14px] shadow-[0_0_20px_rgba(124,58,237,0.3)]">JB</div>
-            <div className="leading-none"><p className="text-[14px] font-black tracking-tight">JOYBOY</p><p className="text-[10px] font-bold tracking-[0.2em] text-zinc-500">TOURNAMENTS</p></div>
+            <div className="h-9 w-9 rounded-xl bg-gradient-to-br from-[#7C3AED] to-[#06B6D4] flex items-center justify-center font-black text-[14px] shadow-[0_0_20px_rgba(124,58,237,0.3)]">ET</div>
+            <div className="leading-none"><p className="text-[14px] font-black tracking-tight">E-TOURNOIS CI</p><p className="text-[10px] font-bold tracking-[0.2em] text-zinc-500">TOURNAMENTS</p></div>
           </Link>
           <nav className="hidden md:flex items-center gap-1">
             {nav.map(item=>{
               const active = pathname===item.href || (item.href!=="/" && pathname.startsWith(item.href));
               const Icon=item.icon;
-              const show = (item as any).badge > 0;
-              return (
-                <Link key={item.href} href={item.href} className={`relative flex items-center gap-2 rounded-full px-4 py-2 text-[12px] font-bold transition ${active ? 'bg-white text-black' : 'text-zinc-400 hover:text-white hover:bg-[#15151E]'}`}>
-                  <Icon className="h-4 w-4" />{item.label}
-                  {show && <span className="absolute -right-1 -top-1 min-w-[20px] h-5 px-1 rounded-full bg-red-500 text-white text-[10px] flex items-center justify-center font-black">{(item as any).badgeText}</span>}
-                </Link>
-              );
+              return <Link key={item.href} href={item.href} className={`relative flex items-center gap-2 rounded-full px-4 py-2 text-[12px] font-bold transition ${active ? 'bg-white text-black' : 'text-zinc-400 hover:text-white hover:bg-[#15151E]'}`}><Icon className="h-4 w-4" />{item.label}{ (item as any).badge && <span className="absolute -right-1 -top-1 h-5 w-5 rounded-full bg-red-500 text-white text-[10px] flex items-center justify-center font-black">{(item as any).badge}</span>}</Link>
             })}
           </nav>
           <div className="hidden md:flex items-center gap-2">
@@ -73,13 +43,7 @@ export default function Navbar() {
           {nav.map(item=>{
             const active = pathname===item.href || (item.href!=="/" && pathname.startsWith(item.href));
             const Icon=item.icon;
-            const show = (item as any).badge > 0;
-            return (
-              <Link key={item.href} href={item.href} className={`flex flex-col items-center justify-center gap-1 ${active ? 'text-white' : 'text-zinc-500'}`}>
-                <div className="relative"><Icon className={`h-5 w-5 ${active ? 'text-[#7C3AED]' : ''}`} />{show && <span className="absolute -right-2 -top-2 min-w-[16px] h-4 px-1 rounded-full bg-red-500 text-[8px] flex items-center justify-center font-black text-white">{(item as any).badgeText}</span>}</div>
-                <span className="text-[9px] font-bold uppercase tracking-wide">{item.label}</span>
-              </Link>
-            );
+            return <Link key={item.href} href={item.href} className={`flex flex-col items-center justify-center gap-1 ${active ? 'text-white' : 'text-zinc-500'}`}><div className="relative"><Icon className={`h-5 w-5 ${active ? 'text-[#7C3AED]' : ''}`} />{(item as any).badge && <span className="absolute -right-2 -top-2 h-4 w-4 rounded-full bg-red-500 text-[8px] flex items-center justify-center font-black text-white">{(item as any).badge}</span>}</div><span className="text-[9px] font-bold uppercase tracking-wide">{item.label}</span></Link>
           })}
         </div>
       </nav>

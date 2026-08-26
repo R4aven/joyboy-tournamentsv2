@@ -216,7 +216,7 @@ export default async function AdminDashboard() {
         <span className="flex items-center gap-2"><span className="h-2 w-2 rounded-full bg-emerald-400 animate-pulse" /> Supabase temps réel actif</span>
         <span>Wave: 01 51 42 99 18</span>
         <span>WhatsApp: 07 48 23 52 26</span>
-        <span className="text-zinc-500">JOYBOY TOURNAMENTS • Abidjan 🇨🇮</span>
+        <span className="text-zinc-500">E-TOURNOIS CI • Abidjan 🇨🇮</span>
       </div>
     </div>
   );

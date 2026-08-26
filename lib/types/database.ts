@@ -1,5 +1,5 @@
 /**
- * JOYBOY TOURNAMENTS - Types TypeScript Supabase
+ * E-TOURNOIS CI - Types TypeScript Supabase
  * Wave officiel: 01 51 42 99 18 | WhatsApp: 07 48 23 52 26
  * Update: CHAMPS OBLIGATOIRES INSCRIPTION - whatsapp_number, efootball_pseudo, wave_number
  */

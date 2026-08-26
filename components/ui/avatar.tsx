@@ -33,7 +33,7 @@ export function Avatar({ className, src, alt, fallback, size = "md", glow = true
       if (parts.length >= 2) return (parts[0][0] + parts[1][0]).toUpperCase()
       return alt.slice(0, 2).toUpperCase()
     }
-    return "JB"
+    return "ET"
   }, [alt, fallback])
 
   return (
