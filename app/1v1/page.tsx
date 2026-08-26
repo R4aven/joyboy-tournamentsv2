@@ -5,7 +5,7 @@ import Link from "next/link";
 import { Swords, Users, Trophy, Flame, Search, Crown, Zap, Eye, Loader2, Gamepad2, Filter } from "lucide-react";
 import PlayerSearch from "@/components/1v1/PlayerSearch";
 import { createClient } from "@/lib/supabase/client";
-import { createChallengeLogic, ETOURNOIS_CI_CONFIG } from "@/lib/1v1/challengeLogic";
+import { createChallengeLogic, JOYBOY_CONFIG } from "@/lib/1v1/challengeLogic";
 import type { PlayerStats } from "@/lib/1v1/challengeLogic";
 import { getPlayerPalmares } from "@/lib/1v1/challengeLogic";
 import { toast } from "sonner";
@@ -52,11 +52,11 @@ function mapRow(row: PlayerRow): PlayerStats {
 }
 
 const MOCK_JOUEURS: PlayerStats[] = [
-  { id: "m1", pseudo: "ShanksCI", username: "shanksci", avatar_url: null, matchs: 42, victoires: 31, defaites: 11, taux_victoire: 74, tournois_remportes: 3, victoires_1v1: 18, palmares: ["Champion Abidjan #3", "Top 8 E-TOURNOIS CI Cup"], ville: "Abidjan" },
+  { id: "m1", pseudo: "ShanksCI", username: "shanksci", avatar_url: null, matchs: 42, victoires: 31, defaites: 11, taux_victoire: 74, tournois_remportes: 3, victoires_1v1: 18, palmares: ["Champion Abidjan #3", "Top 8 JOYBOY Cup"], ville: "Abidjan" },
   { id: "m2", pseudo: "Nami225", username: "nami225", avatar_url: null, matchs: 28, victoires: 19, defaites: 9, taux_victoire: 68, tournois_remportes: 1, victoires_1v1: 12, palmares: ["Vainqueur Femmes Gaming 2025"], ville: "Yopougon" },
-  { id: "m3", pseudo: "ZoroBabi", username: "zorobabi", avatar_url: null, matchs: 65, victoires: 45, defaites: 20, taux_victoire: 69, tournois_remportes: 5, victoires_1v1: 33, palmares: ["2x Champion E-TOURNOIS CI", "Roi du 1V1 d'Abidjan"], ville: "Cocody" },
+  { id: "m3", pseudo: "ZoroBabi", username: "zorobabi", avatar_url: null, matchs: 65, victoires: 45, defaites: 20, taux_victoire: 69, tournois_remportes: 5, victoires_1v1: 33, palmares: ["2x Champion JOYBOY", "Roi du 1V1 d'Abidjan"], ville: "Cocody" },
   { id: "m4", pseudo: "LuffyD", username: "luffyd", avatar_url: null, matchs: 12, victoires: 7, defaites: 5, taux_victoire: 58, tournois_remportes: 0, victoires_1v1: 4, palmares: [], ville: "Marcory" },
-  { id: "m5", pseudo: "SanjiCook", username: "sanjicook", avatar_url: null, matchs: 34, victoires: 22, defaites: 12, taux_victoire: 65, tournois_remportes: 2, victoires_1v1: 15, palmares: ["Finaliste E-TOURNOIS CI Winter"], ville: "Abidjan" },
+  { id: "m5", pseudo: "SanjiCook", username: "sanjicook", avatar_url: null, matchs: 34, victoires: 22, defaites: 12, taux_victoire: 65, tournois_remportes: 2, victoires_1v1: 15, palmares: ["Finaliste JOYBOY Winter"], ville: "Abidjan" },
   { id: "m6", pseudo: "RobinCI", username: "robinci", avatar_url: null, matchs: 51, victoires: 38, defaites: 13, taux_victoire: 75, tournois_remportes: 4, victoires_1v1: 26, palmares: ["Championne Côte d'Ivoire 2024"], ville: "Angré" },
 ];
 
@@ -272,7 +272,7 @@ Passe en prod quand Supabase sera setup.`);
                 <span className="bg-gradient-to-r from-[#A855F7] to-[#06B6D4] bg-clip-text text-transparent">patron ?</span>
               </h2>
               <p className="mt-2 text-sm text-zinc-400">
-                Tape le pseudo de ton adversaire, on lui envoie le défi direct. 500 FCFA par joueur via Wave uniquement : <span className="text-white font-semibold">{ETOURNOIS_CI_CONFIG.wave}</span>. Pas de blabla, que du jeu 🇨🇮
+                Tape le pseudo de ton adversaire, on lui envoie le défi direct. 500 FCFA par joueur via Wave uniquement : <span className="text-white font-semibold">{JOYBOY_CONFIG.wave}</span>. Pas de blabla, que du jeu 🇨🇮
               </p>
             </div>
 
@@ -362,10 +362,10 @@ Passe en prod quand Supabase sera setup.`);
             </div>
             <div>
               <div className="font-semibold text-white">Paiement Wave uniquement - 500 FCFA par joueur</div>
-              <div className="text-xs text-zinc-400">Numéro E-TOURNOIS CI: {ETOURNOIS_CI_CONFIG.wave} • Preuve obligatoire • Support WhatsApp {ETOURNOIS_CI_CONFIG.whatsapp}</div>
+              <div className="text-xs text-zinc-400">Numéro JOYBOY: {JOYBOY_CONFIG.wave} • Preuve obligatoire • Support WhatsApp {JOYBOY_CONFIG.whatsapp}</div>
             </div>
           </div>
-          <a href={ETOURNOIS_CI_CONFIG.whatsappLink} target="_blank" className="rounded-full bg-white text-black px-4 py-2 text-xs font-bold hover:bg-zinc-100 transition">
+          <a href={JOYBOY_CONFIG.whatsappLink} target="_blank" className="rounded-full bg-white text-black px-4 py-2 text-xs font-bold hover:bg-zinc-100 transition">
             Besoin d'aide ? WhatsApp
           </a>
         </div>

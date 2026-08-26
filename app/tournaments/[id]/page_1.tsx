@@ -7,7 +7,7 @@ import { Trophy, Users, Wallet, Calendar, Clock, Shield, FileText, Crown, Swords
 
 const mockDetail = {
   id: "1",
-  name: "E-TOURNOIS CI CUP #12",
+  name: "JOYBOY CUP #12",
   jeu: "FC 26",
   description: "Le tournoi référence à Abidjan. 10 joueurs, bracket réel, finale en BO3. Ambiance premium, arbitrage pro.",
   date: "30 Août 2025",
@@ -95,7 +95,7 @@ export default function TournamentDetail() {
             <p className="mt-3 text-[13px] text-zinc-300">Paiement Wave uniquement. Ta place est confirmée après validation admin.</p>
             <Link href={`/tournaments/${params.id}/payment`} className="mt-4 flex h-12 w-full items-center justify-center rounded-xl bg-gradient-to-r from-[#7C3AED] to-[#06B6D4] text-[13px] font-black tracking-wide">PARTICIPER • {t.prix} FCFA</Link>
             <p className="mt-3 text-center text-[11px] text-zinc-500">Wave : <span className="font-bold text-white">01 51 42 99 18</span></p>
-            <a href="https://wa.me/2250748235226?text=Bonjour%20E-TOURNOIS CI%20TOURNAMENTS%2C%20j%27ai%20besoin%20d%27aide%20concernant%20mon%20paiement." target="_blank" className="mt-3 flex h-10 w-full items-center justify-center rounded-xl border border-[#22222F] bg-[#101015] text-[11px] font-bold hover:border-white/20">💬 Besoin d'aide ? WhatsApp</a>
+            <a href="https://wa.me/2250748235226?text=Bonjour%20JOYBOY%20TOURNAMENTS%2C%20j%27ai%20besoin%20d%27aide%20concernant%20mon%20paiement." target="_blank" className="mt-3 flex h-10 w-full items-center justify-center rounded-xl border border-[#22222F] bg-[#101015] text-[11px] font-bold hover:border-white/20">💬 Besoin d'aide ? WhatsApp</a>
           </div>
         </div>
 

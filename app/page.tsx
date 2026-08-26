@@ -4,7 +4,7 @@ import { Trophy, Swords, Users, Zap, Crown, Flame, CheckCircle2, HelpCircle, Sta
 
 export default function HomePage() {
   const tournaments = [
-    { id: "1", name: "E-TOURNOIS CI CUP #12", jeu: "FC 26", participants: 8, max: 10, prix: 1000, gain: 7000, date: "30 Août 2025", statut: "OUVERT" },
+    { id: "1", name: "JOYBOY CUP #12", jeu: "FC 26", participants: 8, max: 10, prix: 1000, gain: 7000, date: "30 Août 2025", statut: "OUVERT" },
     { id: "2", name: "ABIDJAN SHOWDOWN", jeu: "eFootball", participants: 10, max: 10, prix: 1500, gain: 10000, date: "02 Sept 2025", statut: "COMPLET" },
     { id: "3", name: "YOPOUGON LEAGUE", jeu: "CODM", participants: 4, max: 10, prix: 500, gain: 3500, date: "05 Sept 2025", statut: "OUVERT" },
   ];
@@ -32,7 +32,7 @@ export default function HomePage() {
               <span className="block">GAGNE.</span>
             </h1>
             <p className="mt-6 max-w-2xl text-[16px] md:text-[18px] leading-relaxed text-zinc-400">
-              Entre dans l'arène <span className="font-bold text-white">E-TOURNOIS CI</span> et affronte les meilleurs joueurs de Côte d'Ivoire. Tournois 10 joueurs, duels 1V1, vrai palmarès.
+              Entre dans l'arène <span className="font-bold text-white">JOYBOY TOURNAMENTS</span> et affronte les meilleurs joueurs de Côte d'Ivoire. Tournois 10 joueurs, duels 1V1, vrai palmarès.
             </p>
             <div className="mt-8 flex flex-col sm:flex-row gap-4">
               <Link href="/tournaments" className="inline-flex h-[52px] items-center justify-center gap-2 rounded-full bg-gradient-to-r from-[#7C3AED] to-[#06B6D4] px-8 text-[14px] font-black tracking-wide shadow-[0_0_30px_rgba(124,58,237,0.4)] hover:opacity-90 transition">
@@ -151,7 +151,7 @@ export default function HomePage() {
           ))}
         </div>
         <div className="mt-8 flex justify-center">
-          <a href="https://wa.me/2250748235226?text=Bonjour%20E-TOURNOIS CI%20TOURNAMENTS%2C%20j%27ai%20besoin%20d%27aide%20concernant%20mon%20paiement." target="_blank" className="inline-flex items-center gap-2 rounded-full bg-[#25D366] px-6 py-3 text-[13px] font-black text-black hover:opacity-90">
+          <a href="https://wa.me/2250748235226?text=Bonjour%20JOYBOY%20TOURNAMENTS%2C%20j%27ai%20besoin%20d%27aide%20concernant%20mon%20paiement." target="_blank" className="inline-flex items-center gap-2 rounded-full bg-[#25D366] px-6 py-3 text-[13px] font-black text-black hover:opacity-90">
             💬 BESOIN D'AIDE ? WHATSAPP
           </a>
         </div>

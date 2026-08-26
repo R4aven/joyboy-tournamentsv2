@@ -5,7 +5,7 @@ import Link from "next/link";
 import { Trophy, Users, Wallet, Crown, Search, Filter } from "lucide-react";
 
 const mockTournaments = [
-  { id: "1", name: "E-TOURNOIS CI CUP #12", jeu: "FC 26", participants: 8, max: 10, prix: 1000, gain: 7000, date: "30 Août", heure: "19:00", statut: "OUVERT", description: "Le classique du samedi soir à Abidjan." },
+  { id: "1", name: "JOYBOY CUP #12", jeu: "FC 26", participants: 8, max: 10, prix: 1000, gain: 7000, date: "30 Août", heure: "19:00", statut: "OUVERT", description: "Le classique du samedi soir à Abidjan." },
   { id: "2", name: "ABIDJAN SHOWDOWN", jeu: "eFootball 2025", participants: 10, max: 10, prix: 1500, gain: 10000, date: "02 Sept", heure: "20:00", statut: "COMPLET", description: "Full, liste d'attente ouverte." },
   { id: "3", name: "YOPOUGON LEAGUE", jeu: "CODM", participants: 4, max: 10, prix: 500, gain: 3500, date: "05 Sept", heure: "18:30", statut: "OUVERT", description: "Petit prix, grosse ambiance." },
   { id: "4", name: "PLATEAU MASTERS", jeu: "Free Fire", participants: 0, max: 10, prix: 1000, gain: 7000, date: "08 Sept", heure: "19:00", statut: "EN_PREPARATION", description: "Ouverture des inscriptions demain." },

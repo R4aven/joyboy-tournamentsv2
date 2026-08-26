@@ -12,7 +12,7 @@ export function TournamentRulesAcceptance({ tournamentId, playerId, onAccepted }
     const fetchRule = async () => {
       const { data } = await supabase.from('tournament_rules').select('*').eq('is_active', true).order('created_at', { ascending: false }).limit(1).single();
       if (data) setRule(data);
-      else setRule({ id: 'default', version: 'v1.0', title: 'Règlement E-TOURNOIS CI', content: 'Règlement officiel...' });
+      else setRule({ id: 'default', version: 'v1.0', title: 'Règlement JOYBOY TOURNAMENTS', content: 'Règlement officiel...' });
       const { data: existing } = await supabase.from('rule_acceptances').select('*').eq('player_id', playerId).eq('tournament_id', tournamentId).maybeSingle();
       if (existing) { setAccepted(true); onAccepted(); }
     };

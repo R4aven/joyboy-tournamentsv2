@@ -1,7 +1,7 @@
 
 "use client";
 /**
- * 🇨🇮 E-TOURNOIS CI - ResultDeclaration.tsx
+ * 🇨🇮 JOYBOY - ResultDeclaration.tsx
  * Double déclaration avec upload capture, comparaison auto, badge CONTESTÉ.
  */
 import { useState, useRef } from "react";

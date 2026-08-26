@@ -32,7 +32,7 @@ function Logo({ className }: { className?: string }) {
       </div>
       <div className="flex flex-col leading-none">
         <span className="text-[15px] font-black tracking-[-0.02em] text-white">
-          E-TOURNOIS CI <span className="bg-gradient-to-br from-[#A855F7] to-[#06B6D4] bg-clip-text text-transparent">TOURNAMENTS</span>
+          JOYBOY <span className="bg-gradient-to-br from-[#A855F7] to-[#06B6D4] bg-clip-text text-transparent">TOURNAMENTS</span>
         </span>
         <span className="text-[10px] font-semibold tracking-[0.18em] text-zinc-500 uppercase">Côte d'Ivoire • Abidjan</span>
       </div>
@@ -85,7 +85,7 @@ export function Navbar() {
           <div className="hidden lg:flex items-center gap-3">
             <div className="h-6 w-px bg-[#22222F]" />
             <Link href="/profil" className="flex items-center gap-2 rounded-full border border-[#22222F] bg-[#12121A] pl-1 pr-3 py-1 hover:border-[#7C3AED]/30 transition-colors">
-              <Avatar src={null} alt="Profil" fallback="ET" size="sm" glow={false} />
+              <Avatar src={null} alt="Profil" fallback="JB" size="sm" glow={false} />
               <span className="text-[13px] font-medium text-zinc-300">Mon profil</span>
             </Link>
           </div>

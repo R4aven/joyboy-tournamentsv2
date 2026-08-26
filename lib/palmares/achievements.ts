@@ -1,4 +1,4 @@
-// lib/palmares/achievements.ts - Logique auto attribution trophées E-TOURNOIS CI
+// lib/palmares/achievements.ts - Logique auto attribution trophées JOYBOY TOURNAMENTS
 // 100% français, identité ivoirienne, pas de ELO
 
 export type MatchResult = {
@@ -49,7 +49,7 @@ export const TROPHY_DEFINITIONS: TrophyDefinition[] = [
   {
     id: "VAINQUEUR_TOURNOI",
     nom: "Vainqueur de Tournoi",
-    description: "Tu as souleve la coupe E-TOURNOIS CI. Abidjan est fier de toi!",
+    description: "Tu as souleve la coupe JOYBOY. Abidjan est fier de toi!",
     icone: "Crown",
     couleur: "#FACC15",
     rarete: "RARE",
@@ -67,7 +67,7 @@ export const TROPHY_DEFINITIONS: TrophyDefinition[] = [
   {
     id: "TOP3",
     nom: "Podium",
-    description: "Top 3 dans un tournoi E-TOURNOIS CI. Respect.",
+    description: "Top 3 dans un tournoi JOYBOY. Respect.",
     icone: "Award",
     couleur: "#FB923C",
     rarete: "COMMUN",
@@ -112,7 +112,7 @@ export const TROPHY_DEFINITIONS: TrophyDefinition[] = [
   {
     id: "MULTI_CHAMPION",
     nom: "Multiple Champion",
-    description: "3 titres de champion. Une dynastie E-TOURNOIS CI.",
+    description: "3 titres de champion. Une dynastie JOYBOY.",
     icone: "Crown",
     couleur: "#A855F7",
     rarete: "LEGENDAIRE",
@@ -120,7 +120,7 @@ export const TROPHY_DEFINITIONS: TrophyDefinition[] = [
   },
   {
     id: "LEGENDE",
-    nom: "Legende E-TOURNOIS CI",
+    nom: "Legende JOYBOY",
     description: "10 titres et 50 victoires. Tu es une legende vivante.",
     icone: "Star",
     couleur: "#06B6D4",

@@ -52,7 +52,7 @@ export default function AdminSidebar() {
           <Crown className="h-5 w-5 text-white" />
         </div>
         <div>
-          <h1 className="font-bold text-white leading-tight">E-TOURNOIS CI</h1>
+          <h1 className="font-bold text-white leading-tight">JOYBOY</h1>
           <p className="text-[10px] tracking-[0.3em] text-joy-violet font-bold">ADMIN PANEL</p>
         </div>
       </div>
@@ -103,7 +103,7 @@ export default function AdminSidebar() {
           <div className="h-8 w-8 rounded-lg bg-gradient-joy flex items-center justify-center">
             <Crown className="h-4 w-4 text-white" />
           </div>
-          <span className="font-bold">E-TOURNOIS CI ADMIN</span>
+          <span className="font-bold">JOYBOY ADMIN</span>
         </div>
         <button onClick={() => setOpen(!open)} className="p-2 rounded-lg bg-joy-card border border-joy-border">
           {open ? <X className="h-5 w-5" /> : <Menu className="h-5 w-5" />}

@@ -21,8 +21,8 @@ export default function Navbar() {
       <header className="sticky top-0 z-50 border-b border-[#22222F]/80 bg-[#08080B]/80 backdrop-blur-xl">
         <div className="mx-auto max-w-7xl px-6 h-[64px] flex items-center justify-between">
           <Link href="/" className="flex items-center gap-3">
-            <div className="h-9 w-9 rounded-xl bg-gradient-to-br from-[#7C3AED] to-[#06B6D4] flex items-center justify-center font-black text-[14px] shadow-[0_0_20px_rgba(124,58,237,0.3)]">ET</div>
-            <div className="leading-none"><p className="text-[14px] font-black tracking-tight">E-TOURNOIS CI</p><p className="text-[10px] font-bold tracking-[0.2em] text-zinc-500">TOURNAMENTS</p></div>
+            <div className="h-9 w-9 rounded-xl bg-gradient-to-br from-[#7C3AED] to-[#06B6D4] flex items-center justify-center font-black text-[14px] shadow-[0_0_20px_rgba(124,58,237,0.3)]">JB</div>
+            <div className="leading-none"><p className="text-[14px] font-black tracking-tight">JOYBOY</p><p className="text-[10px] font-bold tracking-[0.2em] text-zinc-500">TOURNAMENTS</p></div>
           </Link>
           <nav className="hidden md:flex items-center gap-1">
             {nav.map(item=>{

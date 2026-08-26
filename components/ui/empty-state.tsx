@@ -25,7 +25,7 @@ const presets: Record<EmptyVariant, { icon: React.ReactNode; title: string; desc
   players: {
     icon: <Users className="h-10 w-10" />,
     title: "Aucun joueur trouve",
-    description: "On n'a trouve personne avec ce filtre. Essaie un autre nom ou invite tes gars a rejoindre E-TOURNOIS CI.",
+    description: "On n'a trouve personne avec ce filtre. Essaie un autre nom ou invite tes gars a rejoindre JOYBOY.",
     action: "Effacer les filtres",
   },
   matches: {
@@ -49,7 +49,7 @@ const presets: Record<EmptyVariant, { icon: React.ReactNode; title: string; desc
   "1v1": {
     icon: <Gamepad2 className="h-10 w-10" />,
     title: "Aucun duel 1V1 actif",
-    description: "Personne ne t'a defie pour l'instant. Lance un 1V1 et montre qui est le vrai E-TOURNOIS CI du quartier.",
+    description: "Personne ne t'a defie pour l'instant. Lance un 1V1 et montre qui est le vrai JoyBoy du quartier.",
     action: "Lancer un 1V1",
   },
   "palmarès": {

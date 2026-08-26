@@ -355,7 +355,7 @@ export default function ChallengesPage() {
         <div className="mt-8 rounded-2xl border border-[#22222F] bg-[#101015] p-4 flex gap-3">
           <AlertCircle className="h-5 w-5 text-[#06B6D4] shrink-0" />
           <div className="text-xs leading-relaxed text-zinc-400">
-            <span className="font-semibold text-white">Comment ça marche ?</span> 1) Tu défies → 2) Il accepte → 3) Vous payez chacun 500 F via Wave au <span className="text-white">{`01 51 42 99 18`}</span> en uploadant la preuve → 4) Match confirmé → 5) Vous jouez et déclarez le gagnant. Si vous dites pas pareil, ça passe en CONTESTÉ et l'équipe E-TOURNOIS CI tranche via WhatsApp <span className="text-white">07 48 23 52 26</span>.
+            <span className="font-semibold text-white">Comment ça marche ?</span> 1) Tu défies → 2) Il accepte → 3) Vous payez chacun 500 F via Wave au <span className="text-white">{`01 51 42 99 18`}</span> en uploadant la preuve → 4) Match confirmé → 5) Vous jouez et déclarez le gagnant. Si vous dites pas pareil, ça passe en CONTESTÉ et l'équipe JOYBOY tranche via WhatsApp <span className="text-white">07 48 23 52 26</span>.
           </div>
         </div>
       </div>

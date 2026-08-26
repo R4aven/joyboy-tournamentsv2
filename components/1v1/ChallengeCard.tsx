@@ -152,7 +152,7 @@ export default function ChallengeCard({ challenge, currentUserId, variant, onAcc
             <div className="mt-4 rounded-xl border border-red-500/20 bg-red-500/10 px-3 py-2.5 flex gap-2">
               <AlertTriangle className="h-4 w-4 text-red-400 shrink-0 mt-0.5" />
               <div className="text-[11px] leading-relaxed text-red-200/80">
-                <span className="font-semibold text-red-300">Match contesté :</span> {challenge.contestation_raison || "Déclarations différentes."} L'équipe E-TOURNOIS CI va trancher sur WhatsApp.
+                <span className="font-semibold text-red-300">Match contesté :</span> {challenge.contestation_raison || "Déclarations différentes."} L'équipe JOYBOY va trancher sur WhatsApp.
                 <br />
                 <a href="https://wa.me/2250748235226" target="_blank" className="underline decoration-red-400/30 underline-offset-2 hover:text-red-200">
                   Contacter 07 48 23 52 26

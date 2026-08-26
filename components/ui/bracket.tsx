@@ -498,7 +498,7 @@ export function Bracket({ participants, matches, onMatchClick, className, title 
                 <Trophy className="h-6 w-6 text-white" />
               </div>
               <p className="text-[13px] font-semibold text-white">Champion</p>
-              <p className="text-[11px] text-zinc-400 mt-1">Qui soulèvera le trophée E-TOURNOIS CI ?</p>
+              <p className="text-[11px] text-zinc-400 mt-1">Qui soulèvera le trophée JoyBoy ?</p>
               {rounds[rounds.length - 1]?.matches[0]?.winnerId && participants.find((p) => p.id === rounds[rounds.length - 1].matches[0].winnerId) && (
                 <div className="mt-4">
                   <Avatar
