@@ -438,9 +438,14 @@ export default function DashboardPage() {
                 <p className="text-[10px] font-bold uppercase tracking-widest text-zinc-500">Taux</p>
               </div>
             </div>
-            <Link href={`/profile/${profile?.username ?? ""}`} className="mt-4 flex h-10 w-full items-center justify-center gap-2 rounded-xl bg-[#15151E] border border-[#22222F] text-[12px] font-bold text-zinc-300 hover:text-white transition-colors">
-              <BarChart3 className="h-4 w-4" /> Voir mon profil public
-            </Link>
+            <div className="mt-4 grid grid-cols-2 gap-2">
+              <Link href={`/profile/${profile?.username ?? ""}`} className="flex h-10 w-full items-center justify-center gap-2 rounded-xl bg-[#15151E] border border-[#22222F] text-[12px] font-bold text-zinc-300 hover:text-white transition-colors">
+                <BarChart3 className="h-4 w-4" /> Voir mon profil
+              </Link>
+              <Link href="/dashboard/edit" className="flex h-10 w-full items-center justify-center gap-2 rounded-xl bg-white text-black text-[12px] font-bold hover:bg-zinc-100 transition-colors">
+                Modifier
+              </Link>
+            </div>
           </div>
 
           {/* Mes gains */}
