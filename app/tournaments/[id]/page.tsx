@@ -1,29 +1,28 @@
-
 "use client";
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import Link from "next/link";
 import { useParams } from "next/navigation";
 import { Trophy, Users, Wallet, Calendar, Clock, Shield, FileText, Crown, Swords } from "lucide-react";
+import { createClient } from "@/lib/supabase/client";
 
-const mockDetail = {
-  id: "1",
-  name: "JOYBOY CUP #12",
-  jeu: "FC 26",
-  description: "Le tournoi référence à Abidjan. 10 joueurs, bracket réel, finale en BO3. Ambiance premium, arbitrage pro.",
-  date: "30 Août 2025",
-  heure: "19:00",
-  prix: 1000,
-  gains: { champion: 7000, finaliste: 2000, troisieme: 1000 },
-  places: 10,
-  statut: "OUVERT" as const,
-  participants: [
-    { pseudo: "RavenCI", avatar: "RC", inscrit: "Validé" },
-    { pseudo: "Kev_225", avatar: "K2", inscrit: "Validé" },
-    { pseudo: "Jordan_Pro", avatar: "JP", inscrit: "Validé" },
-    { pseudo: "Momo_Yop", avatar: "MY", inscrit: "En attente" },
-    { pseudo: "IvoiroGamer", avatar: "IG", inscrit: "Validé" },
-  ],
-  reglement: "Format 10 joueurs -> 2 barrages (7v10, 8v9) -> Quarts -> Demis -> Finale BO3. Pas de triche, pas d'insultes. Capture obligatoire en cas de contestation. Paiement Wave uniquement.",
+type Tournament = {
+  id: string;
+  name: string;
+  game: string;
+  description: string;
+  status: string;
+  entry_fee: number;
+  prize_pool: number;
+  max_players: number;
+  start_date: string;
+  created_at: string;
+};
+
+type Participant = {
+  id: string;
+  user_id: string;
+  username?: string;
+  status?: string;
 };
 
 const tabs = [
@@ -35,67 +34,62 @@ const tabs = [
   { id: "gains", label: "Gains", icon: Crown },
 ];
 
-function Bracket10() {
-  const rounds = [
-    { name: "Barrages", matches: [{ a: "7. Kev", b: "10. New", score: "- vs -" }, { a: "8. Ivoiro", b: "9. Momo", score: "- vs -" }] },
-    { name: "Quarts", matches: [{ a: "1. Raven", b: "Vainq B1" }, { a: "4. Jordan", b: "5. Ivoiro" }, { a: "2. Kev", b: "Vainq B2" }, { a: "3. Momo", b: "6. Player" }] },
-    { name: "Demis", matches: [{ a: "Q1 Winner", b: "Q2 Winner" }, { a: "Q3 Winner", b: "Q4 Winner" }] },
-    { name: "Finale", matches: [{ a: "Demi 1", b: "Demi 2", final: true }] },
-  ];
-  return (
-    <div className="overflow-x-auto pb-6">
-      <div className="flex gap-6 min-w-[900px]">
-        {rounds.map((r,ri)=>(
-          <div key={ri} className="flex-1">
-            <h4 className="text-[12px] font-black uppercase tracking-widest text-zinc-500 mb-4">{r.name}</h4>
-            <div className="space-y-8">
-              {r.matches.map((m,mi)=>(
-                <div key={mi} className={`rounded-xl border bg-[#101015] p-3 ${r.name==='Finale' ? 'border-amber-500/30 bg-gradient-to-br from-amber-500/10 to-transparent' : 'border-[#22222F]'}`}>
-                  <div className="space-y-2">
-                    <div className="flex items-center justify-between rounded-lg bg-[#15151E] px-3 py-2"><span className="text-[12px] font-bold">{m.a}</span><span className="text-[10px] text-zinc-500">{(m as any).score || '0'}</span></div>
-                    <div className="flex items-center justify-between rounded-lg bg-[#15151E] px-3 py-2"><span className="text-[12px] font-bold">{m.b}</span><span className="text-[10px] text-zinc-500">0</span></div>
-                  </div>
-                  {r.name==='Finale' && <p className="mt-2 text-center text-[11px] font-black text-amber-300">🏆 CHAMPION</p>}
-                </div>
-              ))}
-            </div>
-          </div>
-        ))}
-      </div>
-    </div>
-  );
-}
-
-export default function TournamentDetail() {
+export default function TournamentDetailReal() {
   const params = useParams();
+  const id = params.id as string;
+  const supabase = createClient();
   const [tab, setTab] = useState("infos");
-  const t = mockDetail;
+  const [tournament, setTournament] = useState<Tournament | null>(null);
+  const [participants, setParticipants] = useState<Participant[]>([]);
+  const [loading, setLoading] = useState(true);
+
+  useEffect(() => {
+    const fetchData = async () => {
+      setLoading(true);
+      const { data: t } = await supabase.from("tournaments").select("*").eq("id", id).maybeSingle();
+      if (t) setTournament(t as Tournament);
+
+      const { data: p } = await supabase.from("tournament_participants").select("id, user_id, status, profiles(username)").eq("tournament_id", id);
+      if (p) {
+        const mapped = p.map((x: any) => ({
+          id: x.id,
+          user_id: x.user_id,
+          username: x.profiles?.username || "Joueur",
+          status: x.status || "Validé",
+        }));
+        setParticipants(mapped);
+      }
+      setLoading(false);
+    };
+    if (id) fetchData();
+  }, [id, supabase]);
+
+  if (loading) return <div className="min-h-screen bg-[#08080B] text-white flex items-center justify-center">Chargement vrai tournoi...</div>;
+  if (!tournament) return <div className="min-h-screen bg-[#08080B] text-white flex items-center justify-center"><div className="text-center"><p className="font-bold">Tournoi introuvable</p><p className="text-xs text-zinc-500">ID {id} n'existe pas dans Supabase. Crée-le dans /admin</p><Link href="/tournaments" className="mt-4 inline-flex h-9 px-4 rounded-xl bg-white text-black text-xs font-bold">Retour</Link></div></div>;
 
   return (
     <div className="min-h-screen bg-[#08080B] text-white">
       <div className="mx-auto max-w-7xl px-6 py-8">
-        <Link href="/tournaments" className="text-[12px] text-zinc-500 hover:text-white">← Retour tournois</Link>
+        <Link href="/tournaments" className="text-[12px] text-zinc-500 hover:text-white">← Retour tournois réels</Link>
         <div className="mt-4 flex flex-col md:flex-row md:items-start justify-between gap-6">
           <div>
             <div className="flex items-center gap-3">
-              <span className="rounded-full bg-[#15151E] border border-[#22222F] px-3 py-1 text-[11px] font-bold">{t.jeu}</span>
-              <span className="rounded-full bg-emerald-500/15 text-emerald-300 border border-emerald-500/20 px-3 py-1 text-[11px] font-black">{t.statut}</span>
+              <span className="rounded-full bg-[#15151E] border border-[#22222F] px-3 py-1 text-[11px] font-bold">{tournament.game}</span>
+              <span className="rounded-full bg-emerald-500/15 text-emerald-300 border border-emerald-500/20 px-3 py-1 text-[11px] font-black">{tournament.status}</span>
             </div>
-            <h1 className="mt-3 text-[32px] font-black tracking-tight">{t.name}</h1>
-            <p className="mt-2 max-w-2xl text-[13px] leading-relaxed text-zinc-400">{t.description}</p>
+            <h1 className="mt-3 text-[32px] font-black tracking-tight">{tournament.name}</h1>
+            <p className="mt-2 max-w-2xl text-[13px] leading-relaxed text-zinc-400">{tournament.description || "Tournoi officiel JOYBOY"}</p>
             <div className="mt-4 flex flex-wrap gap-2 text-[11px]">
-              <span className="rounded-full bg-[#101015] border border-[#22222F] px-3 py-1.5 flex items-center gap-1.5"><Calendar className="h-3.5 w-3.5" /> {t.date}</span>
-              <span className="rounded-full bg-[#101015] border border-[#22222F] px-3 py-1.5 flex items-center gap-1.5"><Clock className="h-3.5 w-3.5" /> {t.heure}</span>
-              <span className="rounded-full bg-[#101015] border border-[#22222F] px-3 py-1.5 flex items-center gap-1.5"><Users className="h-3.5 w-3.5" /> {t.participants.length}/{t.places}</span>
-              <span className="rounded-full bg-[#101015] border border-[#22222F] px-3 py-1.5 flex items-center gap-1.5"><Wallet className="h-3.5 w-3.5" /> {t.prix} FCFA</span>
+              <span className="rounded-full bg-[#101015] border border-[#22222F] px-3 py-1.5 flex items-center gap-1.5"><Calendar className="h-3.5 w-3.5" /> {new Date(tournament.start_date || tournament.created_at).toLocaleDateString("fr-FR")}</span>
+              <span className="rounded-full bg-[#101015] border border-[#22222F] px-3 py-1.5 flex items-center gap-1.5"><Users className="h-3.5 w-3.5" /> {participants.length}/{tournament.max_players || 10}</span>
+              <span className="rounded-full bg-[#101015] border border-[#22222F] px-3 py-1.5 flex items-center gap-1.5"><Wallet className="h-3.5 w-3.5" /> {tournament.entry_fee || 1000} FCFA</span>
             </div>
           </div>
           <div className="shrink-0 rounded-[20px] border border-[#22222F] bg-[#15151E] p-5 w-full md:w-[320px]">
-            <p className="text-[12px] font-black uppercase tracking-widest text-zinc-500">Rejoindre</p>
+            <p className="text-[12px] font-black uppercase tracking-widest text-zinc-500">Rejoindre - VRAI TOURNOI</p>
             <p className="mt-3 text-[13px] text-zinc-300">Paiement Wave uniquement. Ta place est confirmée après validation admin.</p>
-            <Link href={`/tournaments/${params.id}/payment`} className="mt-4 flex h-12 w-full items-center justify-center rounded-xl bg-gradient-to-r from-[#7C3AED] to-[#06B6D4] text-[13px] font-black tracking-wide">PARTICIPER • {t.prix} FCFA</Link>
+            <Link href={`/tournaments/${id}/payment`} className="mt-4 flex h-12 w-full items-center justify-center rounded-xl bg-gradient-to-r from-[#7C3AED] to-[#06B6D4] text-[13px] font-black tracking-wide">PARTICIPER • {tournament.entry_fee || 1000} FCFA</Link>
             <p className="mt-3 text-center text-[11px] text-zinc-500">Wave : <span className="font-bold text-white">01 51 42 99 18</span></p>
-            <a href="https://wa.me/2250748235226?text=Bonjour%20JOYBOY%20TOURNAMENTS%2C%20j%27ai%20besoin%20d%27aide%20concernant%20mon%20paiement." target="_blank" className="mt-3 flex h-10 w-full items-center justify-center rounded-xl border border-[#22222F] bg-[#101015] text-[11px] font-bold hover:border-white/20">💬 Besoin d'aide ? WhatsApp</a>
           </div>
         </div>
 
@@ -108,40 +102,35 @@ export default function TournamentDetail() {
 
         <div className="mt-6">
           {tab==='infos' && (
-            <div className="grid md:grid-cols-3 gap-6">
-              <div className="md:col-span-2 space-y-4">
-                <div className="rounded-[20px] border border-[#22222F] bg-[#101015] p-6"><h3 className="text-[14px] font-black">À propos</h3><p className="mt-3 text-[13px] leading-relaxed text-zinc-400">{t.description} Format officiel 10 joueurs avec bracket dynamique réel, pas une image. Chaque victoire fait avancer automatiquement le vainqueur.</p></div>
-                <div className="rounded-[20px] border border-[#22222F] bg-[#101015] p-6"><h3 className="text-[14px] font-black">Comment ça se passe ?</h3><ul className="mt-3 space-y-2 text-[13px] text-zinc-400 list-disc pl-5"><li>Tu paies sur Wave 01 51 42 99 18 et upload ta capture</li><li>Admin valide → tu es dans les 10</li><li>Bracket généré automatiquement quand complet</li><li>Tu joues, envoies score + capture, vainqueur avance</li><li>Finale → Champion → Palmarès + Gains Wave</li></ul></div>
-              </div>
-              <div className="space-y-4">
-                <div className="rounded-[20px] border border-[#22222F] bg-[#15151E] p-5"><h4 className="text-[12px] font-black uppercase tracking-widest text-zinc-500">Gains</h4><div className="mt-3 space-y-2 text-[13px]"><div className="flex justify-between"><span className="text-zinc-500">Champion</span><span className="font-black text-amber-300">{t.gains.champion} FCFA</span></div><div className="flex justify-between"><span className="text-zinc-500">Finaliste</span><span className="font-bold">{t.gains.finaliste} FCFA</span></div><div className="flex justify-between"><span className="text-zinc-500">3e place</span><span className="font-bold">{t.gains.troisieme} FCFA</span></div></div><p className="mt-4 rounded-xl bg-[#101015] border border-[#22222F] p-3 text-[11px] text-zinc-400">Gagne et encaisse ton djai sur Wave ! 🇨🇮</p></div>
+            <div className="rounded-[20px] border border-[#22222F] bg-[#101015] p-6">
+              <h3 className="text-[14px] font-black">Infos réelles depuis Supabase</h3>
+              <p className="mt-3 text-[13px] text-zinc-400">Ce tournoi existe vraiment dans ta table tournaments. Pas de mock JOYBOY CUP #12.</p>
+              <div className="mt-4 grid md:grid-cols-3 gap-3 text-[12px]">
+                <div className="rounded-xl bg-[#15151E] border border-[#22222F] p-3"><p className="text-zinc-500">Jeu</p><p className="font-bold mt-1">{tournament.game}</p></div>
+                <div className="rounded-xl bg-[#15151E] border border-[#22222F] p-3"><p className="text-zinc-500">Entrée</p><p className="font-bold mt-1">{tournament.entry_fee} FCFA</p></div>
+                <div className="rounded-xl bg-[#15151E] border border-[#22222F] p-3"><p className="text-zinc-500">Prize</p><p className="font-bold mt-1">{tournament.prize_pool} FCFA</p></div>
               </div>
             </div>
           )}
           {tab==='participants' && (
             <div className="rounded-[20px] border border-[#22222F] bg-[#101015] p-6">
-              <h3 className="text-[14px] font-black">Joueurs inscrits ({t.participants.length}/{t.places})</h3>
-              <div className="mt-4 grid md:grid-cols-2 gap-3">
-                {t.participants.map((p,i)=>(
-                  <div key={i} className="flex items-center justify-between rounded-xl border border-[#22222F] bg-[#15151E] p-4">
-                    <div className="flex items-center gap-3"><span className="text-[11px] font-bold text-zinc-500">{i+1}.</span><div className="h-9 w-9 rounded-full bg-gradient-to-br from-[#7C3AED] to-[#06B6D4] flex items-center justify-center text-[11px] font-black">{p.avatar}</div><span className="text-[13px] font-bold">{p.pseudo}</span></div>
-                    <span className={`rounded-full px-3 py-1 text-[10px] font-bold ${p.inscrit==='Validé'?'bg-emerald-500/15 text-emerald-300':'bg-amber-500/15 text-amber-300'}`}>{p.inscrit}</span>
-                  </div>
-                ))}
-              </div>
+              <h3 className="text-[14px] font-black">Joueurs réels inscrits ({participants.length}/{tournament.max_players || 10})</h3>
+              {participants.length===0 ? <p className="mt-4 text-[13px] text-zinc-500">Aucun participant réel encore. Sois le premier !</p> : (
+                <div className="mt-4 grid md:grid-cols-2 gap-3">
+                  {participants.map((p,i)=>(
+                    <div key={p.id} className="flex items-center justify-between rounded-xl border border-[#22222F] bg-[#15151E] p-4">
+                      <div className="flex items-center gap-3"><span className="text-[11px] font-bold text-zinc-500">{i+1}.</span><div className="h-9 w-9 rounded-full bg-gradient-to-br from-[#7C3AED] to-[#06B6D4] flex items-center justify-center text-[11px] font-black">{p.username?.[0].toUpperCase()}</div><Link href={`/profile/${p.username}`} className="text-[13px] font-bold hover:text-[#A855F7]">{p.username}</Link></div>
+                      <span className="rounded-full px-3 py-1 text-[10px] font-bold bg-emerald-500/15 text-emerald-300">{p.status}</span>
+                    </div>
+                  ))}
+                </div>
+              )}
             </div>
           )}
-          {tab==='bracket' && <div className="rounded-[20px] border border-[#22222F] bg-[#101015] p-6"><h3 className="text-[14px] font-black mb-6">Vrai bracket dynamique - 10 joueurs</h3><Bracket10 /><p className="mt-6 text-[11px] text-zinc-500">Bracket généré à partir des vrais participants. Quand un résultat est validé, le vainqueur avance automatiquement. Responsive sur téléphone.</p></div>}
-          {tab==='matchs' && <div className="rounded-[20px] border border-[#22222F] bg-[#101015] p-6"><h3 className="text-[14px] font-black">Matchs du tournoi</h3><div className="mt-4 space-y-3">{[{j1:"RavenCI",j2:"Momo_Yop",s:"À venir",h:"19:00"},{j1:"Kev_225",j2:"Jordan_Pro",s:"Terminé",score:"2-1"}].map((m,i)=><div key={i} className="flex items-center justify-between rounded-xl border border-[#22222F] bg-[#15151E] p-4"><div><p className="text-[13px] font-bold">{m.j1} vs {m.j2}</p><p className="text-[11px] text-zinc-500">{m.s} { (m as any).score ? '• '+(m as any).score : ''} • {m.h}</p></div><span className={`rounded-full px-3 py-1 text-[10px] font-bold ${m.s==='Terminé'?'bg-emerald-500/15 text-emerald-300':'bg-zinc-800 text-zinc-400'}`}>{m.s}</span></div>)}</div></div>}
-          {tab==='reglement' && <div className="rounded-[20px] border border-[#22222F] bg-[#101015] p-6"><h3 className="text-[14px] font-black">Règlement officiel</h3><p className="mt-3 text-[13px] leading-relaxed text-zinc-400 whitespace-pre-wrap">{t.reglement}
-
-1. Fair-play obligatoire
-2. Capture obligatoire en cas de litige
-3. 10 min de retard = forfait
-4. Décision admin finale
-5. Paiement Wave uniquement 01 51 42 99 18
-6. Gains versés sous 24h après finale</p></div>}
-          {tab==='gains' && <div className="rounded-[20px] border border-[#22222F] bg-[#101015] p-6"><h3 className="text-[14px] font-black">Répartition des gains</h3><div className="mt-4 grid md:grid-cols-3 gap-4"><div className="rounded-2xl border border-amber-500/30 bg-amber-500/10 p-5 text-center"><p className="text-[28px]">🏆</p><p className="mt-2 text-[14px] font-black">Champion</p><p className="text-[22px] font-black text-amber-300">{t.gains.champion} FCFA</p></div><div className="rounded-2xl border border-[#22222F] bg-[#15151E] p-5 text-center"><p className="text-[28px]">🥈</p><p className="mt-2 text-[14px] font-bold">Finaliste</p><p className="text-[18px] font-bold">{t.gains.finaliste} FCFA</p></div><div className="rounded-2xl border border-[#22222F] bg-[#15151E] p-5 text-center"><p className="text-[28px]">🥉</p><p className="mt-2 text-[14px] font-bold">3e place</p><p className="text-[18px] font-bold">{t.gains.troisieme} FCFA</p></div></div><p className="mt-6 rounded-xl bg-gradient-to-r from-[#7C3AED]/20 to-[#06B6D4]/15 border border-[#7C3AED]/20 p-4 text-[13px] font-bold text-center">Gagne et encaisse ton djai sur Wave ! 🇨🇮 Ton djai est prêt après validation.</p></div>}
+          {tab==='bracket' && <div className="rounded-[20px] border border-[#22222F] bg-[#101015] p-6"><h3 className="text-[14px] font-black">Bracket réel</h3><p className="mt-3 text-[13px] text-zinc-400">Le bracket sera généré automatiquement quand le tournoi sera complet avec de vrais joueurs.</p></div>}
+          {tab==='matchs' && <div className="rounded-[20px] border border-[#22222F] bg-[#101015] p-6"><h3 className="text-[14px] font-black">Matchs</h3><p className="mt-3 text-[13px] text-zinc-500">Aucun match réel encore.</p></div>}
+          {tab==='reglement' && <div className="rounded-[20px] border border-[#22222F] bg-[#101015] p-6"><h3 className="text-[14px] font-black">Règlement officiel</h3><p className="mt-3 text-[13px] text-zinc-400">Fair-play obligatoire. Capture obligatoire. Paiement Wave 01 51 42 99 18. Gains sous 24h.</p></div>}
+          {tab==='gains' && <div className="rounded-[20px] border border-[#22222F] bg-[#101015] p-6"><h3 className="text-[14px] font-black">Gains</h3><p className="mt-3 text-[13px]">Champion: {Math.round((tournament.prize_pool || 7000)*0.7)} FCFA, Finaliste: {Math.round((tournament.prize_pool || 7000)*0.2)} FCFA, 3e: {Math.round((tournament.prize_pool || 7000)*0.1)} FCFA</p></div>}
         </div>
       </div>
     </div>
