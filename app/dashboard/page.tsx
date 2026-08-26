@@ -7,7 +7,7 @@ import {
   Trophy, Swords, Target, Crown, TrendingUp, 
   Gift, Calendar, Flame, Users, BarChart3,
   Clock, ArrowRight, Award, Zap, Shield,
-  Wallet, History, Medal, Plus
+  Wallet, History, Medal, Plus, LogOut
 } from "lucide-react";
 import { toast } from "sonner";
 import { createClient } from "@/lib/supabase/client";
@@ -65,6 +65,16 @@ export default function DashboardPage() {
   const { user, profile, loading: authLoading } = useAuth();
   const { notifications } = useRealtime();
   const supabase = createClient();
+
+  const handleLogout = async () => {
+    try {
+      await supabase.auth.signOut();
+      toast.success("Déconnecté 👋");
+      router.push("/login");
+    } catch {
+      toast.error("Erreur déconnexion");
+    }
+  };
 
   const [stats, setStats] = useState<DashboardStats>({
     matchesPlayed: 0,
@@ -438,9 +448,17 @@ export default function DashboardPage() {
                 <p className="text-[10px] font-bold uppercase tracking-widest text-zinc-500">Taux</p>
               </div>
             </div>
-            <Link href={`/profile/${profile?.username ?? ""}`} className="mt-4 flex h-10 w-full items-center justify-center gap-2 rounded-xl bg-[#15151E] border border-[#22222F] text-[12px] font-bold text-zinc-300 hover:text-white transition-colors">
-              <BarChart3 className="h-4 w-4" /> Voir mon profil public
-            </Link>
+            <div className="mt-4 grid grid-cols-1 gap-2">
+              <Link href={`/profile/${profile?.username ?? ""}`} className="flex h-10 w-full items-center justify-center gap-2 rounded-xl bg-[#15151E] border border-[#22222F] text-[12px] font-bold text-zinc-300 hover:text-white transition-colors">
+                <BarChart3 className="h-4 w-4" /> Voir mon profil public
+              </Link>
+              <button
+                onClick={handleLogout}
+                className="flex h-10 w-full items-center justify-center gap-2 rounded-xl bg-red-500/10 border border-red-500/20 text-[12px] font-bold text-red-400 hover:bg-red-500/20 hover:text-red-300 transition-colors"
+              >
+                <LogOut className="h-4 w-4" /> Se déconnecter
+              </button>
+            </div>
           </div>
 
           {/* Mes gains */}
