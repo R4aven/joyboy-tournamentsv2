@@ -1,85 +1,81 @@
 
 "use client";
-import { useEffect, useState, useMemo } from "react";
+import { useEffect, useState, useCallback } from "react";
 import Link from "next/link";
-import { Swords, Search, Flame, Trophy, Clock, Filter } from "lucide-react";
+import { Swords, Trophy, Flame, Crown, Eye, Loader2, Gamepad2 } from "lucide-react";
+import PlayerSearch from "@/components/1v1/PlayerSearch";
 import { createClient } from "@/lib/supabase/client";
+import type { PlayerStats } from "@/lib/1v1/challengeLogic";
+import { toast } from "sonner";
 
-type SortMode = "RECENT" | "BOOST_1V1" | "BOOST_TOURNOI" | "ALPHA";
+type Row = { id: string; username: string; display_name?: string; avatar_url: string | null; city?: string; bio?: string; wins?: number; losses?: number; tournaments_won?: number; wins_1v1?: number; created_at?: string; };
 
-export default function OneVOnePage() {
+function mapRow(row: Row): PlayerStats {
+  const w = row.wins||0; const l = row.losses||0;
+  return { id: row.id, pseudo: row.display_name || row.username, username: row.username, avatar_url: row.avatar_url, matchs: w+l, victoires: w, defaites: l, taux_victoire: w+l>0 ? Math.round((w/(w+l))*100) : 0, tournois_remportes: row.tournaments_won||0, victoires_1v1: row.wins_1v1||0, palmares: [], ville: row.city, bio: row.bio, created_at: row.created_at } as any;
+}
+
+function PlayerCard({ player, currentUserId, onDefy, defyingId }: { player: PlayerStats; currentUserId?: string; onDefy: (p: PlayerStats)=>void; defyingId: string|null }) {
+  const isMe = player.id===currentUserId;
+  return (
+    <div className="rounded-[22px] border border-[#22222F] bg-[#15151E] p-[1px]">
+      <div className="rounded-[21px] bg-gradient-to-b from-[#1C1C27] to-[#15151E] p-5">
+        <div className="flex gap-4">
+          <div className="h-14 w-14 rounded-2xl overflow-hidden bg-[#101015] border border-zinc-800 flex items-center justify-center">{player.avatar_url ? <img src={player.avatar_url} className="h-full w-full object-cover" /> : <span className="font-black">{player.pseudo[0]}</span>}</div>
+          <div className="flex-1"><h3 className="font-bold">{player.pseudo}</h3><p className="text-xs text-zinc-500">@{player.username} • {player.bio?.slice(0,40)||"Joueur JOYBOY"}</p><div className="mt-2 flex gap-2"><span className="rounded-full bg-[#08080B] border border-zinc-800 px-2 py-1 text-[11px]">{player.matchs} matchs</span><span className="rounded-full bg-emerald-500/10 px-2 py-1 text-[11px] text-emerald-300">{player.victoires}V</span></div></div>
+        </div>
+        <div className="mt-4 flex gap-2"><Link href={`/profile/${player.username}`} className="flex-1 rounded-full border border-zinc-800 bg-[#08080B] py-2.5 text-xs text-center"><Eye className="inline h-3 w-3 mr-1" /> Profil</Link><button disabled={isMe || defyingId===player.id} onClick={()=>onDefy(player)} className="flex-1 rounded-full bg-gradient-to-r from-violet-600 to-cyan-500 py-2.5 text-xs font-bold text-white disabled:opacity-50">{isMe ? "Toi" : "Défier"}</button></div>
+      </div>
+    </div>
+  );
+}
+
+export default function Page1v1() {
   const supabase = createClient();
-  const [players, setPlayers] = useState<any[]>([]);
+  const [players, setPlayers] = useState<PlayerStats[]>([]);
   const [loading, setLoading] = useState(true);
+  const [currentUserId, setCurrentUserId] = useState<string|undefined>();
+  const [defyingId, setDefyingId] = useState<string|null>(null);
   const [q, setQ] = useState("");
-  const [sort, setSort] = useState<SortMode>("RECENT");
 
-  useEffect(() => {
-    const load = async () => {
-      setLoading(true);
-      // Vrai data seulement, pas de faux, tous les profiles
-      const { data } = await supabase.from("profiles").select("id, username, display_name, avatar_url, wins, losses, tournaments_won, challenges_won, city, created_at, level").order("created_at", {ascending:false}).limit(100);
-      if (data) setPlayers(data);
-      setLoading(false);
-    };
-    load();
+  const fetchPlayers = useCallback(async (search?: string) => {
+    setLoading(true);
+    const { data: { user } } = await supabase.auth.getUser();
+    if (user) setCurrentUserId(user.id);
+    let query = supabase.from("profiles").select("id, username, display_name, avatar_url, city, bio, wins, losses, tournaments_won, wins_1v1, created_at").order("created_at",{ascending:false}).limit(50);
+    if (search && search.length>=1) query = supabase.from("profiles").select("id, username, display_name, avatar_url, city, bio, wins, losses, tournaments_won, wins_1v1, created_at").or(`username.ilike.%${search}%,display_name.ilike.%${search}%`).order("created_at",{ascending:false}).limit(30);
+    const { data } = await query;
+    if (data) setPlayers((data as Row[]).map(mapRow));
+    setLoading(false);
   }, []);
 
-  // Effet Google: filtrage instantané sans bouton
-  const filtered = useMemo(() => {
-    let list = [...players];
-    if (q) {
-      const lower = q.toLowerCase();
-      list = list.filter(p => (p.username||"").toLowerCase().includes(lower) || (p.display_name||"").toLowerCase().includes(lower));
-    }
-    if (sort==="RECENT") list.sort((a,b)=> new Date(b.created_at).getTime() - new Date(a.created_at).getTime());
-    if (sort==="BOOST_1V1") list.sort((a,b)=> (b.challenges_won||0) - (a.challenges_won||0) || (b.wins||0)-(a.wins||0));
-    if (sort==="BOOST_TOURNOI") list.sort((a,b)=> (b.tournaments_won||0) - (a.tournaments_won||0) || (b.wins||0)-(a.wins||0));
-    if (sort==="ALPHA") list.sort((a,b)=> (a.username||"").localeCompare(b.username||""));
-    return list;
-  }, [players, q, sort]);
+  useEffect(() => {
+    fetchPlayers();
+    const ch = supabase.channel("profiles-1v1").on("postgres_changes", { event: "INSERT", schema: "public", table: "profiles" }, (payload) => {
+      const row = payload.new as Row;
+      setPlayers(prev => prev.find(p=>p.id===row.id) ? prev : [mapRow(row), ...prev]);
+      toast.success(`Nouveau joueur @${row.username} visible direct en 1V1`);
+    }).subscribe();
+    return () => { supabase.removeChannel(ch); };
+  }, [fetchPlayers]);
+
+  const handleDefy = async (player: PlayerStats) => {
+    if (!currentUserId) { toast.error("Connecte-toi"); return; }
+    setDefyingId(player.id);
+    try {
+      await supabase.from("challenges").insert({ challenger_id: currentUserId, opponent_id: player.id, stake: 500, status: "pending", game: "eFootball" });
+      await supabase.from("notifications").insert({ user_id: player.id, type: "1V1", title: "Défi 1V1", message: "On t'a défié", link: "/1v1/challenges" });
+      toast.success("Défi envoyé");
+    } catch (e:any) { toast.error(e.message); }
+    finally { setDefyingId(null); }
+  };
 
   return (
-    <div className="min-h-screen bg-[#08080B] text-white">
-      <div className="mx-auto max-w-6xl px-6 py-10">
-        <h1 className="text-3xl font-black flex items-center gap-3"><Swords className="h-8 w-8 text-violet-500" /> Duels 1V1 - Vrais joueurs seulement</h1>
-        
-        <div className="mt-6 flex flex-col md:flex-row gap-3">
-          <div className="relative flex-1 max-w-md">
-            <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-zinc-500" />
-            <input value={q} onChange={e=>setQ(e.target.value)} placeholder="Rechercher joueur... (effet Google instantané)" className="w-full pl-10 pr-4 py-3 rounded-xl bg-[#15151E] border border-zinc-800 text-sm focus:border-violet-600 focus:outline-none transition" />
-            {q && <span className="absolute right-3 top-1/2 -translate-y-1/2 text-[10px] text-zinc-500">{filtered.length} résultats</span>}
-          </div>
-          <div className="flex gap-2 overflow-auto">
-            <button onClick={()=>setSort("RECENT")} className={`whitespace-nowrap rounded-xl px-4 py-2.5 text-xs font-bold border flex items-center gap-1.5 ${sort==="RECENT" ? "bg-white text-black border-white" : "bg-[#15151E] border-zinc-800 text-zinc-400"}`}><Clock className="h-3.5 w-3.5" /> Récents</button>
-            <button onClick={()=>setSort("BOOST_1V1")} className={`whitespace-nowrap rounded-xl px-4 py-2.5 text-xs font-bold border flex items-center gap-1.5 ${sort==="BOOST_1V1" ? "bg-white text-black border-white" : "bg-[#15151E] border-zinc-800 text-zinc-400"}`}><Flame className="h-3.5 w-3.5" /> Booster 1V1</button>
-            <button onClick={()=>setSort("BOOST_TOURNOI")} className={`whitespace-nowrap rounded-xl px-4 py-2.5 text-xs font-bold border flex items-center gap-1.5 ${sort==="BOOST_TOURNOI" ? "bg-white text-black border-white" : "bg-[#15151E] border-zinc-800 text-zinc-400"}`}><Trophy className="h-3.5 w-3.5" /> Booster Tournois</button>
-          </div>
-        </div>
-
-        {loading ? <p className="mt-8 text-zinc-500">Chargement vrais joueurs...</p> : filtered.length===0 ? <div className="mt-8 rounded-2xl border border-zinc-800 bg-[#101015] p-8 text-center text-zinc-500">Aucun joueur trouvé pour &quot;{q}&quot;</div> : (
-          <div className="mt-8 grid md:grid-cols-3 gap-4">
-            {filtered.map(p=>(
-              <div key={p.id} className="group rounded-2xl border border-zinc-800 bg-[#101015] p-5 hover:border-violet-500/30 transition">
-                <div className="flex items-center gap-3">
-                  <div className="h-12 w-12 rounded-xl overflow-hidden bg-gradient-to-br from-violet-600 to-cyan-500 flex items-center justify-center font-black">{p.avatar_url ? <img src={p.avatar_url} className="h-full w-full object-cover" /> : (p.display_name||p.username||"?")[0]}</div>
-                  <div className="flex-1 min-w-0"><p className="font-bold truncate">@{p.username}</p><p className="text-xs text-zinc-500 truncate">{p.display_name} • {p.city||"Abidjan"}</p></div>
-                  <span className="text-[10px] px-2 py-1 rounded-full bg-[#15151E] border border-zinc-800">Niv {p.level||1}</span>
-                </div>
-                <div className="mt-3 grid grid-cols-3 gap-2 text-center">
-                  <div className="rounded-xl bg-[#15151E] p-2"><p className="text-xs text-zinc-500">Victoires</p><p className="font-bold text-sm">{p.wins||0}</p></div>
-                  <div className="rounded-xl bg-[#15151E] p-2"><p className="text-xs text-zinc-500">1V1</p><p className="font-bold text-sm text-orange-400">{p.challenges_won||0}</p></div>
-                  <div className="rounded-xl bg-[#15151E] p-2"><p className="text-xs text-zinc-500">Tournois</p><p className="font-bold text-sm text-amber-400">{p.tournaments_won||0}</p></div>
-                </div>
-                <div className="mt-4 grid grid-cols-2 gap-2">
-                  <Link href={`/profile/${p.username}`} className="rounded-xl bg-[#15151E] border border-zinc-800 py-2.5 text-center text-xs font-bold hover:bg-[#1A1A25]">Voir profil</Link>
-                  <Link href={`/profile/${p.username}?chat=1`} className="rounded-xl bg-gradient-to-r from-violet-600 to-cyan-500 py-2.5 text-center text-xs font-bold text-white">Chatter</Link>
-                </div>
-              </div>
-            ))}
-          </div>
-        )}
-      </div>
+    <div className="mx-auto max-w-7xl px-4 py-6 space-y-6">
+      <h1 className="text-3xl font-black flex items-center gap-2"><Swords className="h-7 w-7 text-violet-500" /> 1V1 - Joueurs inscrits visibles direct</h1>
+      <PlayerSearch onSelect={p=>setPlayers(prev=> prev.find(x=>x.id===p.id) ? prev : [p, ...prev])} />
+      <div className="flex gap-2"><input value={q} onChange={e=>{ setQ(e.target.value); fetchPlayers(e.target.value); }} placeholder="Recherche live des 1 lettre - ex: a, b, r..." className="flex-1 rounded-xl bg-[#101015] border border-zinc-800 px-4 py-2.5 text-sm" /><button onClick={()=>fetchPlayers()} className="rounded-xl bg-[#15151E] border border-zinc-800 px-4 py-2.5 text-sm">Refresh</button></div>
+      {loading ? <div className="flex justify-center py-20"><Loader2 className="h-8 w-8 animate-spin" /></div> : <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-4">{players.map(p=><PlayerCard key={p.id} player={p} currentUserId={currentUserId} onDefy={handleDefy} defyingId={defyingId} />)}</div>}
     </div>
   );
 }
