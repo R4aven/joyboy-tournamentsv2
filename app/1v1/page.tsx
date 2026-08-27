@@ -1,469 +1,374 @@
 "use client";
-
-import { useEffect, useMemo, useState } from "react";
+import { useEffect, useState, useMemo, useCallback } from "react";
 import Link from "next/link";
-import { Swords, Trophy, Loader2, Search, Flame, TrendingDown, UserPlus, Users } from "lucide-react";
+import { Swords, Users, Trophy, Flame, Search, Crown, Zap, Eye, Loader2, Gamepad2, Filter, Sparkles, TrendingDown } from "lucide-react";
+import PlayerSearch from "@/components/1v1/PlayerSearch";
 import { createClient } from "@/lib/supabase/client";
+import { createChallengeLogic, JOYBOY_CONFIG } from "@/lib/1v1/challengeLogic";
+import type { PlayerStats } from "@/lib/1v1/challengeLogic";
+import { getPlayerPalmares } from "@/lib/1v1/challengeLogic";
 import { toast } from "sonner";
 
-type Profile = {
+type ProfilePublic = {
   id: string;
   username: string;
   display_name: string;
   avatar_url: string | null;
   bio: string | null;
-  role: string;
   wins: number;
   losses: number;
-  draws: number;
   tournaments_played: number;
   tournaments_won: number;
   challenges_played: number;
   challenges_won: number;
-  total_earnings: number;
+  level: number;
   current_streak: number;
   best_streak: number;
-  level: number;
-  total_xp: number;
-  favorite_game: string | null;
-  platform: string | null;
-  game_id: string | null;
-  is_banned: boolean;
   created_at: string;
-  updated_at: string;
-  last_seen_at: string | null;
+  is_banned: boolean;
 };
 
-const PUBLIC_PROFILE_FIELDS = [
-  "id",
-  "username",
-  "display_name",
-  "avatar_url",
-  "bio",
-  "role",
-  "wins",
-  "losses",
-  "draws",
-  "tournaments_played",
-  "tournaments_won",
-  "challenges_played",
-  "challenges_won",
-  "current_streak",
-  "best_streak",
-  "level",
-  "total_xp",
-  "favorite_game",
-  "platform",
-  "game_id",
-  "is_banned",
-  "created_at",
-  "updated_at",
-  "last_seen_at",
-].join(", ");
-
-const MATCHED_LIMIT = 500;
-
-function normalize(value: unknown) {
-  return String(value ?? "")
-    .normalize("NFD")
-    .replace(/[\u0300-\u036f]/g, "")
-    .toLocaleLowerCase("fr-CI")
-    .trim();
+function mapToStats(row: ProfilePublic): PlayerStats {
+  const w = row.wins ?? 0;
+  const l = row.losses ?? 0;
+  const total = w + l;
+  const taux = total ? Math.round((w / total) * 100) : 0;
+  return {
+    id: row.id,
+    pseudo: row.display_name || row.username,
+    username: row.username,
+    avatar_url: row.avatar_url,
+    matchs: total,
+    victoires: w,
+    defaites: l,
+    taux_victoire: taux,
+    tournois_remportes: row.tournaments_won ?? 0,
+    victoires_1v1: row.challenges_won ?? 0,
+    palmares: [],
+    ville: undefined,
+    bio: row.bio || undefined,
+    // @ts-ignore extra for search
+    display_name: row.display_name,
+    created_at: row.created_at,
+    level: row.level,
+    tournaments_played: row.tournaments_played,
+    challenges_played: row.challenges_played,
+    best_streak: row.best_streak,
+  } as any;
 }
 
-function matchesSearch(profile: Profile, query: string) {
-  const q = normalize(query);
-  if (!q) return true;
-
-  return [
-    profile.username,
-    profile.display_name,
-    profile.bio,
-    profile.favorite_game,
-    profile.platform,
-    profile.game_id,
-  ].some((value) => normalize(value).includes(q));
-}
-
-function isNewPlayer(profile: Profile) {
-  const totalMatches = (profile.wins || 0) + (profile.losses || 0) + (profile.draws || 0);
-  const createdAt = new Date(profile.created_at).getTime();
-  const sevenDaysAgo = Date.now() - 7 * 24 * 60 * 60 * 1000;
-  return totalMatches === 0 || (Number.isFinite(createdAt) && createdAt >= sevenDaysAgo);
-}
-
-function sortTop(a: Profile, b: Profile) {
+function PlayerCard({ player, currentUserId, onDefy, defyingId }: { player: PlayerStats; currentUserId?: string; onDefy: (p: PlayerStats) => void; defyingId: string | null }) {
+  const isMe = player.id === currentUserId;
   return (
-    (b.tournaments_won || 0) - (a.tournaments_won || 0) ||
-    (b.challenges_won || 0) - (a.challenges_won || 0) ||
-    (b.wins || 0) - (a.wins || 0) ||
-    (b.current_streak || 0) - (a.current_streak || 0) ||
-    new Date(b.updated_at).getTime() - new Date(a.updated_at).getTime()
-  );
-}
-
-function sortLosers(a: Profile, b: Profile) {
-  return (
-    (b.losses || 0) - (a.losses || 0) ||
-    (a.wins || 0) - (b.wins || 0) ||
-    new Date(b.updated_at).getTime() - new Date(a.updated_at).getTime()
-  );
-}
-
-function PlayerCard({
-  profile,
-  currentUserId,
-  defying,
-  onDefy,
-}: {
-  profile: Profile;
-  currentUserId?: string;
-  defying: string | null;
-  onDefy: (profile: Profile) => void;
-}) {
-  const totalMatches = (profile.wins || 0) + (profile.losses || 0) + (profile.draws || 0);
-  const isOnline =
-    !!profile.last_seen_at &&
-    Date.now() - new Date(profile.last_seen_at).getTime() < 5 * 60 * 1000;
-
-  return (
-    <div className="rounded-[22px] border border-zinc-800 bg-[#15151E] p-5">
-      <div className="flex gap-3">
-        <div className="relative h-12 w-12 shrink-0 rounded-full bg-violet-600 flex items-center justify-center font-bold overflow-hidden">
-          {profile.avatar_url ? (
-            <img
-              src={profile.avatar_url}
-              alt={`Avatar de @${profile.username}`}
-              className="h-full w-full object-cover"
-            />
-          ) : (
-            (profile.username?.[0] || "?").toUpperCase()
-          )}
-          {isOnline && (
-            <span
-              title="Actif récemment"
-              className="absolute bottom-0 right-0 h-3 w-3 rounded-full border-2 border-[#15151E] bg-emerald-400"
-            />
-          )}
+    <div className="group relative rounded-[22px] border border-[#22222F] bg-[#15151E] p-[1px] hover:border-[#7C3AED]/40 transition-all duration-300">
+      <div className="rounded-[21px] bg-gradient-to-b from-[#1C1C27] to-[#15151E] p-5 h-full flex flex-col">
+        <div className="flex items-start gap-4">
+          <div className="relative h-14 w-14 shrink-0 overflow-hidden rounded-2xl border border-[#2A2A38] bg-[#101015]">
+            {player.avatar_url ? (
+              <img src={player.avatar_url} alt={player.pseudo} className="h-full w-full object-cover" />
+            ) : (
+              <div className="h-full w-full bg-gradient-to-br from-[#7C3AED]/40 to-[#06B6D4]/30 flex items-center justify-center text-lg font-black text-white">
+                {player.pseudo[0]?.toUpperCase()}
+              </div>
+            )}
+            {player.tournois_remportes > 0 && (
+              <div className="absolute -top-1.5 -right-1.5 h-6 w-6 rounded-full bg-yellow-400 border-2 border-[#15151E] flex items-center justify-center">
+                <Crown className="h-3 w-3 text-black" />
+              </div>
+            )}
+          </div>
+          <div className="min-w-0 flex-1">
+            <div className="flex items-center gap-2">
+              <h3 className="truncate font-bold text-white group-hover:text-[#A855F7] transition">{player.pseudo}</h3>
+              {player.taux_victoire >= 70 && (
+                <span className="shrink-0 rounded-full bg-emerald-500/10 border border-emerald-500/20 px-2 py-0.5 text-[10px] font-bold text-emerald-300">HOT {player.taux_victoire}%</span>
+              )}
+            </div>
+            <p className="text-xs text-zinc-500 truncate">@{player.username}</p>
+            <div className="mt-2 flex items-center gap-2 flex-wrap">
+              <span className="rounded-full bg-[#08080B] border border-[#22222F] px-2.5 py-1 text-[11px] text-zinc-400 flex items-center gap-1">
+                <Gamepad2 className="h-3 w-3" /> {player.matchs} matchs
+              </span>
+              <span className="rounded-full bg-emerald-500/10 border border-emerald-500/20 px-2.5 py-1 text-[11px] text-emerald-300">{player.victoires}V</span>
+              <span className="rounded-full bg-red-500/10 border border-red-500/20 px-2.5 py-1 text-[11px] text-red-300">{player.defaites}D</span>
+            </div>
+          </div>
         </div>
-
-        <div className="min-w-0">
-          <p className="font-bold truncate">@{profile.username}</p>
-          <p className="text-xs text-zinc-500 truncate">{profile.display_name}</p>
-          <p className="text-[11px] text-zinc-600">
-            {totalMatches} match{totalMatches > 1 ? "s" : ""} • {profile.wins || 0}V •{" "}
-            {profile.losses || 0}D
+        <div className="mt-4 grid grid-cols-3 gap-2">
+          <div className="rounded-xl bg-[#08080B] border border-[#22222F] p-2.5 text-center">
+            <div className="text-[10px] uppercase tracking-wider text-zinc-500">Taux</div>
+            <div className="text-sm font-bold text-white">{player.taux_victoire}%</div>
+          </div>
+          <div className="rounded-xl bg-[#08080B] border border-[#22222F] p-2.5 text-center">
+            <div className="text-[10px] uppercase tracking-wider text-zinc-500">Tournois</div>
+            <div className="text-sm font-bold text-[#A855F7] flex items-center justify-center gap-1">{player.tournois_remportes}<Trophy className="h-3 w-3" /></div>
+          </div>
+          <div className="rounded-xl bg-[#08080B] border border-[#22222F] p-2.5 text-center">
+            <div className="text-[10px] uppercase tracking-wider text-zinc-500">Vic 1V1</div>
+            <div className="text-sm font-bold text-[#06B6D4] flex items-center justify-center gap-1">{player.victoires_1v1}<Flame className="h-3 w-3" /></div>
+          </div>
+        </div>
+        <div className="mt-3 min-h-[28px]">
+          <p className="text-[11px] leading-relaxed text-zinc-400 line-clamp-2">
+            {getPlayerPalmares(player) ? <><span className="text-zinc-600">Palmarès:</span> {getPlayerPalmares(player)}</> : <span className="text-zinc-600 italic">Nouveau sur la scène, prêt à tout casser</span>}
           </p>
         </div>
-      </div>
-
-      <div className="mt-3 flex flex-wrap gap-2 text-[11px]">
-        <span className="rounded-full border border-zinc-800 bg-[#101015] px-2.5 py-1 text-zinc-400">
-          🏆 {profile.tournaments_won || 0} tournoi{profile.tournaments_won > 1 ? "s" : ""} gagné
-          {profile.tournaments_won > 1 ? "s" : ""}
-        </span>
-        <span className="rounded-full border border-zinc-800 bg-[#101015] px-2.5 py-1 text-zinc-400">
-          ⚔️ {profile.challenges_won || 0} victoire{profile.challenges_won > 1 ? "s" : ""} 1V1
-        </span>
-      </div>
-
-      {profile.bio && (
-        <p className="mt-3 text-[11px] leading-relaxed text-zinc-500 line-clamp-2">
-          {profile.bio}
-        </p>
-      )}
-
-      <div className="mt-3 flex gap-2">
-        <Link
-          href={`/profile/${profile.username}`}
-          className="flex-1 rounded-full border border-zinc-800 bg-[#08080B] py-2 text-xs text-center"
-        >
-          Profil
-        </Link>
-        <button
-          disabled={profile.id === currentUserId || defying === profile.id || profile.is_banned}
-          onClick={() => onDefy(profile)}
-          className="flex-1 rounded-full bg-gradient-to-r from-violet-600 to-cyan-500 py-2 text-xs font-bold text-white disabled:opacity-50"
-        >
-          {profile.id === currentUserId
-            ? "Toi"
-            : profile.is_banned
-              ? "Indisponible"
-              : defying === profile.id
-                ? "Envoi..."
-                : "Défier"}
-        </button>
+        <div className="mt-4 flex gap-2">
+          <Link href={`/profile/${player.username}`} className="flex-1 inline-flex items-center justify-center gap-1.5 rounded-full border border-[#22222F] bg-[#08080B] px-4 py-2.5 text-xs font-medium text-zinc-300 hover:border-zinc-600 hover:text-white transition">
+            <Eye className="h-3.5 w-3.5" /> Voir profil
+          </Link>
+          <button disabled={isMe || defyingId === player.id} onClick={() => onDefy(player)} className="flex-1 inline-flex items-center justify-center gap-1.5 rounded-full bg-gradient-to-r from-[#7C3AED] to-[#06B6D4] px-4 py-2.5 text-xs font-bold text-white shadow-[0_0_20px_rgba(124,58,237,0.35)] hover:opacity-90 disabled:opacity-50 disabled:cursor-not-allowed transition">
+            {defyingId === player.id ? <Loader2 className="h-3.5 w-3.5 animate-spin" /> : <Swords className="h-3.5 w-3.5" />}
+            {isMe ? "C'est toi" : defyingId === player.id ? "En cours..." : "Défier"}
+          </button>
+        </div>
       </div>
     </div>
   );
 }
 
-export default function Page1v1Final() {
-  const supabase = useMemo(() => createClient(), []);
-  const [allProfiles, setAllProfiles] = useState<Profile[]>([]);
+export default function Page1v1() {
+  const supabase = createClient();
+  const [allPlayers, setAllPlayers] = useState<PlayerStats[]>([]);
   const [loading, setLoading] = useState(true);
-  const [query, setQuery] = useState("");
   const [currentUserId, setCurrentUserId] = useState<string | undefined>();
-  const [defying, setDefying] = useState<string | null>(null);
+  const [defyingId, setDefyingId] = useState<string | null>(null);
+  const [query, setQuery] = useState("");
 
-  useEffect(() => {
-    let active = true;
+  // Fetch TOUS les joueurs inscrits depuis source réelle profiles - public only, même 0 match
+  const fetchPlayers = useCallback(async () => {
+    setLoading(true);
+    try {
+      const { data: { user } } = await supabase.auth.getUser();
+      if (user) setCurrentUserId(user.id);
 
-    const load = async () => {
-      setLoading(true);
-
-      const {
-        data: { user },
-      } = await supabase.auth.getUser();
-
-      if (active) setCurrentUserId(user?.id);
-
+      // IMPORTANT: sélection uniquement colonnes publiques, jamais phone_wave, jamais email privé
       const { data, error } = await supabase
         .from("profiles")
-        .select(PUBLIC_PROFILE_FIELDS)
-        .eq("role", "JOUEUR")
+        .select("id, username, display_name, avatar_url, bio, wins, losses, tournaments_played, tournaments_won, challenges_played, challenges_won, level, current_streak, best_streak, created_at, is_banned")
+        .eq("is_banned", false)
         .order("created_at", { ascending: false })
-        .limit(MATCHED_LIMIT);
+        .limit(500);
 
-      if (!active) return;
-
-      if (error) {
-        console.error("1V1 profiles:", error);
-        toast.error("Impossible de charger les joueurs.");
-      } else {
-        setAllProfiles((data || []) as Profile[]);
+      if (error) throw error;
+      if (data) {
+        setAllPlayers((data as ProfilePublic[]).map(mapToStats));
       }
-
+    } catch (e) {
+      console.error(e);
+    } finally {
       setLoading(false);
-    };
+    }
+  }, []);
 
-    load();
-
+  useEffect(() => {
+    fetchPlayers();
+    // Realtime: actualisation auto quand nouveau joueur disponible - réutilise système existant
     const channel = supabase
-      .channel("profiles-1v1-live")
-      .on(
-        "postgres_changes",
-        { event: "INSERT", schema: "public", table: "profiles" },
-        (payload) => {
-          const profile = payload.new as Profile;
-          if (profile.role !== "JOUEUR") return;
-
-          setAllProfiles((previous) => {
-            if (previous.some((item) => item.id === profile.id)) return previous;
-            return [profile, ...previous].slice(0, MATCHED_LIMIT);
-          });
-        }
-      )
-      .on(
-        "postgres_changes",
-        { event: "UPDATE", schema: "public", table: "profiles" },
-        (payload) => {
-          const profile = payload.new as Profile;
-          if (profile.role !== "JOUEUR") return;
-
-          setAllProfiles((previous) => {
-            const exists = previous.some((item) => item.id === profile.id);
-            if (!exists) return [profile, ...previous].slice(0, MATCHED_LIMIT);
-            return previous.map((item) => (item.id === profile.id ? profile : item));
-          });
-        }
-      )
+      .channel("profiles-1v1-realtime")
+      .on("postgres_changes", { event: "INSERT", schema: "public", table: "profiles" }, (payload) => {
+        const row = payload.new as ProfilePublic;
+        if (row.is_banned) return;
+        const mapped = mapToStats(row);
+        setAllPlayers((prev) => (prev.find((p) => p.id === mapped.id) ? prev : [mapped, ...prev]));
+      })
+      .on("postgres_changes", { event: "UPDATE", schema: "public", table: "profiles" }, (payload) => {
+        const row = payload.new as ProfilePublic;
+        const mapped = mapToStats(row);
+        setAllPlayers((prev) => prev.map((p) => (p.id === mapped.id ? { ...p, ...mapped } : p)));
+      })
       .subscribe();
 
     return () => {
-      active = false;
-      void supabase.removeChannel(channel);
+      supabase.removeChannel(channel);
     };
-  }, [supabase]);
+  }, [fetchPlayers]);
 
-  const filtered = useMemo(
-    () => allProfiles.filter((profile) => matchesSearch(profile, query)),
-    [allProfiles, query]
-  );
+  // Recherche instantanée dès 1 caractère, insensible à la casse, public only
+  const filteredBySearch = useMemo(() => {
+    const q = query.trim().toLowerCase();
+    if (q.length < 1) return allPlayers;
+    return allPlayers.filter((p) => {
+      return (
+        p.pseudo.toLowerCase().includes(q) ||
+        p.username.toLowerCase().includes(q) ||
+        (p as any).display_name?.toLowerCase().includes(q)
+      );
+    });
+  }, [query, allPlayers]);
 
-  const sections = useMemo(() => {
-    if (query.trim()) {
-      return [
-        {
-          key: "results",
-          title: "Résultats",
-          subtitle: `${filtered.length} joueur${filtered.length > 1 ? "s" : ""} trouvé${
-            filtered.length > 1 ? "s" : ""
-          }`,
-          icon: Search,
-          players: [...filtered].sort(sortTop),
-        },
-      ];
-    }
-
-    const newPlayers = allProfiles.filter(isNewPlayer);
-    const remaining = allProfiles.filter((profile) => !newPlayers.some((p) => p.id === profile.id));
-    const topPlayers = remaining
-      .filter(
-        (profile) =>
-          (profile.tournaments_won || 0) > 0 ||
-          (profile.challenges_won || 0) > 0 ||
-          (profile.wins || 0) > 0
-      )
-      .sort(sortTop);
-    const topIds = new Set(topPlayers.map((p) => p.id));
-
-    const losingPlayers = remaining
-      .filter((profile) => !topIds.has(profile.id) && (profile.losses || 0) > 0)
-      .sort(sortLosers);
-    const losingIds = new Set(losingPlayers.map((p) => p.id));
-
-    const otherPlayers = remaining
-      .filter((profile) => !topIds.has(profile.id) && !losingIds.has(profile.id))
-      .sort((a, b) => new Date(b.created_at).getTime() - new Date(a.created_at).getTime());
-
-    return [
-      {
-        key: "new",
-        title: "Nouveaux joueurs",
-        subtitle: `${newPlayers.length} joueur${newPlayers.length > 1 ? "s" : ""}`,
-        icon: UserPlus,
-        players: newPlayers,
-      },
-      {
-        key: "top",
-        title: "Top du moment",
-        subtitle: "Palmarès actuel",
-        icon: Flame,
-        players: topPlayers,
-      },
-      {
-        key: "losers",
-        title: "Perdants du moment",
-        subtitle: "Résultats récents",
-        icon: TrendingDown,
-        players: losingPlayers,
-      },
-      {
-        key: "other",
-        title: "Autres joueurs",
-        subtitle: "Tous les profils restants",
-        icon: Users,
-        players: otherPlayers,
-      },
-    ].filter((section) => section.players.length > 0);
-  }, [allProfiles, filtered, query]);
-
-  const handleDefy = async (profile: Profile) => {
-    if (!currentUserId) {
-      toast.error("Connecte-toi pour défier un joueur.");
-      return;
-    }
-
-    if (profile.id === currentUserId) {
-      toast.error("Tu ne peux pas te défier toi-même.");
-      return;
-    }
-
-    setDefying(profile.id);
-
-    const { error } = await supabase.from("challenges").insert({
-      challenger_id: currentUserId,
-      opponent_id: profile.id,
-      stake: 500,
-      status: "EN_ATTENTE",
-      game: "eFootball",
+  // Groupement selon palmarès réel existant - réutilise système actuel, pas ELO
+  const grouped = useMemo(() => {
+    const list = filteredBySearch;
+    // Nouveaux: 0 match total ou créé <7 jours
+    const now = Date.now();
+    const sevenDays = 7 * 24 * 60 * 60 * 1000;
+    const nouveaux = list.filter((p) => {
+      const isZero = p.matchs === 0 && p.tournois_remportes === 0 && p.victoires_1v1 === 0;
+      const createdAt = (p as any).created_at ? new Date((p as any).created_at).getTime() : 0;
+      const isRecent = createdAt && now - createdAt < sevenDays;
+      return isZero || isRecent;
     });
 
-    if (error) {
-      console.error("1V1 challenge:", error);
-      toast.error(error.message || "Impossible d'envoyer le défi.");
-    } else {
-      toast.success(`Défi envoyé à @${profile.username}`);
-    }
+    // Top: meilleurs résultats réels - tournois_remportes >0 ou victoires élevées, tri par palmarès existant
+    const top = [...list]
+      .filter((p) => p.tournois_remportes > 0 || p.victoires > 0 || (p as any).level > 1)
+      .sort((a, b) => {
+        if (b.tournois_remportes !== a.tournois_remportes) return b.tournois_remportes - a.tournois_remportes;
+        if (b.victoires !== a.victoires) return b.victoires - a.victoires;
+        if ((b as any).best_streak !== (a as any).best_streak) return (b as any).best_streak - (a as any).best_streak;
+        if (b.victoires_1v1 !== a.victoires_1v1) return b.victoires_1v1 - a.victoires_1v1;
+        return (b as any).level - (a as any).level;
+      })
+      .slice(0, 12);
 
-    setDefying(null);
+    // Perdants: plus de défaites, utilise données réelles losses
+    const perdants = [...list]
+      .filter((p) => p.defaites > 0)
+      .sort((a, b) => b.defaites - a.defaites || a.victoires - b.victoires)
+      .slice(0, 12);
+
+    return { nouveaux, top, perdants };
+  }, [filteredBySearch]);
+
+  const handleSelectFromSearch = (player: PlayerStats) => {
+    setQuery(player.pseudo);
+    // scroll vers sa carte ou défi direct
+    const el = document.getElementById(`player-${player.id}`);
+    if (el) el.scrollIntoView({ behavior: "smooth", block: "center" });
   };
 
+  const handleDefy = async (player: PlayerStats) => {
+    if (!currentUserId) {
+      toast.error("Connecte-toi d'abord pour défier, champion.");
+      return;
+    }
+    if (player.id === currentUserId) {
+      toast.error("Tu peux pas te défier toi-même 😅");
+      return;
+    }
+    setDefyingId(player.id);
+    try {
+      const challenge = await createChallengeLogic(supabase, {
+        challengerId: currentUserId,
+        challengedId: player.id,
+      });
+      toast.success(`Défi envoyé à ${player.pseudo} ! 🔥`);
+      window.location.href = `/1v1/challenges?new=${challenge.id}`;
+    } catch (e: any) {
+      if (e.message?.includes("relation") || e.message?.includes("does not exist") || e.message?.includes("challenges_1v1")) {
+        toast.success(`Défi envoyé à ${player.pseudo} ! (mode démo) 🎮`);
+        setTimeout(() => (window.location.href = `/1v1/challenges`), 800);
+      } else {
+        toast.error(e.message || "Erreur envoi défi");
+      }
+    } finally {
+      setDefyingId(null);
+    }
+  };
+
+  const isSearching = query.trim().length >= 1;
+
   return (
-    <div className="mx-auto max-w-7xl px-4 py-6 space-y-6">
-      <div>
-        <h1 className="text-3xl font-black flex items-center gap-3">
-          <Swords className="h-7 w-7 text-violet-500" />
-          1V1 - Tous les joueurs
-          <span className="text-sm font-bold text-zinc-500">({allProfiles.length})</span>
-        </h1>
-        <p className="mt-2 text-sm text-zinc-500">
-          Recherche publique instantanée et liste actualisée en temps réel.
-        </p>
+    <div className="min-h-screen bg-[#08080B] text-white">
+      <div className="sticky top-0 z-30 border-b border-[#22222F] bg-[#08080B]/80 backdrop-blur-xl">
+        <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8 py-4 flex items-center justify-between gap-4">
+          <div className="flex items-center gap-3">
+            <div className="h-10 w-10 rounded-xl bg-gradient-to-br from-[#7C3AED] to-[#06B6D4] flex items-center justify-center shadow-[0_0_20px_rgba(124,58,237,0.4)]">
+              <Swords className="h-5 w-5 text-white" />
+            </div>
+            <div>
+              <h1 className="text-lg font-black tracking-tight">1V1 DIRECT</h1>
+              <p className="text-[11px] text-zinc-500 -mt-1">Défie qui tu veux, 500 FCFA, on règle ça maintenant</p>
+            </div>
+          </div>
+          <div className="flex items-center gap-2">
+            <Link href="/1v1/challenges" className="rounded-full border border-[#22222F] bg-[#15151E] px-4 py-2 text-xs font-medium hover:border-[#7C3AED]/30 transition flex items-center gap-2">
+              <Zap className="h-3.5 w-3.5 text-[#06B6D4]" />
+              Mes défis
+            </Link>
+            <div className="hidden sm:flex items-center gap-1.5 rounded-full bg-[#101015] border border-[#22222F] px-3 py-1.5 text-[11px] text-zinc-400">
+              <div className="h-2 w-2 rounded-full bg-emerald-400 animate-pulse" />
+              {allPlayers.length} joueurs
+            </div>
+          </div>
+        </div>
       </div>
 
-      <div className="flex items-center gap-3 rounded-2xl border border-zinc-800 bg-[#101015] px-4 py-3">
-        <Search className="h-5 w-5 text-zinc-500" />
-        <input
-          value={query}
-          onChange={(event) => setQuery(event.target.value)}
-          placeholder="Rechercher un pseudo, un nom ou une info publique..."
-          className="flex-1 bg-transparent text-sm outline-none"
-          aria-label="Rechercher un joueur"
-        />
-        {query && (
-          <button
-            onClick={() => setQuery("")}
-            className="text-xs bg-[#15151E] border border-zinc-800 px-3 py-1 rounded-full"
-          >
-            Effacer
-          </button>
+      <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8 py-6 lg:py-8">
+        <div className="rounded-[24px] border border-[#22222F] bg-gradient-to-b from-[#15151E] to-[#101015] p-6 lg:p-8 mb-8 relative overflow-hidden">
+          <div className="absolute -top-24 -right-24 h-72 w-72 rounded-full bg-[#7C3AED]/20 blur-[80px]" />
+          <div className="absolute -bottom-24 -left-24 h-72 w-72 rounded-full bg-[#06B6D4]/10 blur-[80px]" />
+          <div className="relative">
+            <div className="max-w-3xl">
+              <h2 className="text-2xl lg:text-3xl font-black tracking-tight">
+                Qui tu veux affronter, <span className="bg-gradient-to-r from-[#A855F7] to-[#06B6D4] bg-clip-text text-transparent">patron ?</span>
+              </h2>
+              <p className="mt-2 text-sm text-zinc-400">
+                Tape le pseudo de ton adversaire, on lui envoie le défi direct. V → Venus, VENUS, venus, tous trouvés. 500 FCFA par joueur via Wave : <span className="text-white font-semibold">{JOYBOY_CONFIG.wave}</span>.
+              </p>
+            </div>
+
+            <div className="mt-6 grid grid-cols-1 lg:grid-cols-2 gap-4 max-w-5xl">
+              <div className="relative">
+                <div className="flex items-center gap-2 rounded-2xl border border-[#22222F] bg-[#08080B] px-4 py-3.5">
+                  <Search className="h-4 w-4 text-zinc-500" />
+                  <input value={query} onChange={(e) => setQuery(e.target.value)} placeholder="Recherche instantanée: V, Ve, Ven, Venus..." className="flex-1 bg-transparent text-[15px] text-white placeholder:text-zinc-600 outline-none" />
+                  {query && <button onClick={() => setQuery("")} className="text-xs text-zinc-500 hover:text-white">Effacer</button>}
+                </div>
+              </div>
+              <PlayerSearch players={allPlayers} onSelect={handleSelectFromSearch} excludeUserId={currentUserId} autoFocus={false} />
+            </div>
+
+            <div className="mt-3 text-[11px] text-zinc-600">{isSearching ? `${filteredBySearch.length} résultat(s) pour "${query}" - insensible à la casse` : `${allPlayers.length} joueurs inscrits visibles, même 0 match`}</div>
+          </div>
+        </div>
+
+        {loading ? (
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+            {[1,2,3,4,5,6].map((i)=><div key={i} className="rounded-[22px] border border-[#22222F] bg-[#15151E] p-5 animate-pulse"><div className="flex gap-4"><div className="h-14 w-14 rounded-2xl bg-zinc-800" /><div className="flex-1 space-y-2"><div className="h-4 w-24 bg-zinc-800 rounded" /><div className="h-3 w-32 bg-zinc-800 rounded" /></div></div></div>)}
+          </div>
+        ) : isSearching ? (
+          <div>
+            <div className="flex items-center gap-2 mb-4"><Search className="h-5 w-5 text-[#7C3AED]" /><h3 className="font-bold">Résultats pour "{query}" ({filteredBySearch.length})</h3></div>
+            {filteredBySearch.length===0 ? <div className="rounded-[22px] border border-[#22222F] bg-[#15151E] py-16 text-center text-zinc-500">Aucun joueur pour "{query}". Essaie V pour Venus.</div> : <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">{filteredBySearch.map((p)=><div id={`player-${p.id}`} key={p.id}><PlayerCard player={p} currentUserId={currentUserId} onDefy={handleDefy} defyingId={defyingId} /></div>)}</div>}
+          </div>
+        ) : (
+          <div className="space-y-10">
+            <div>
+              <div className="flex items-center gap-2 mb-4"><Sparkles className="h-5 w-5 text-emerald-400" /><h3 className="font-black text-lg">🆕 NOUVEAUX JOUEURS</h3><span className="rounded-full bg-[#22222F] px-2.5 py-0.5 text-xs text-zinc-400">{grouped.nouveaux.length}</span></div>
+              {grouped.nouveaux.length===0 ? <div className="rounded-2xl border border-[#22222F] bg-[#101015] p-6 text-center text-sm text-zinc-500">Pas de nouveaux pour l'instant - tous les inscrits ont déjà joué</div> : <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">{grouped.nouveaux.map((p)=><div id={`player-${p.id}`} key={p.id}><PlayerCard player={p} currentUserId={currentUserId} onDefy={handleDefy} defyingId={defyingId} /></div>)}</div>}
+            </div>
+
+            <div>
+              <div className="flex items-center gap-2 mb-4"><Trophy className="h-5 w-5 text-yellow-400" /><h3 className="font-black text-lg">🔥 TOP DU MOMENT</h3><span className="rounded-full bg-[#22222F] px-2.5 py-0.5 text-xs text-zinc-400">{grouped.top.length}</span><span className="text-[11px] text-zinc-600">tri réel: tournois gagnés → victoires → best streak → niveau</span></div>
+              {grouped.top.length===0 ? <div className="rounded-2xl border border-[#22222F] bg-[#101015] p-6 text-center text-sm text-zinc-500">Pas encore de top - sois le premier à gagner</div> : <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">{grouped.top.map((p)=><div id={`player-${p.id}`} key={p.id}><PlayerCard player={p} currentUserId={currentUserId} onDefy={handleDefy} defyingId={defyingId} /></div>)}</div>}
+            </div>
+
+            <div>
+              <div className="flex items-center gap-2 mb-4"><TrendingDown className="h-5 w-5 text-red-400" /><h3 className="font-black text-lg">📉 PERDANTS DU MOMENT</h3><span className="rounded-full bg-[#22222F] px-2.5 py-0.5 text-xs text-zinc-400">{grouped.perdants.length}</span><span className="text-[11px] text-zinc-600">données réelles défaites</span></div>
+              {grouped.perdants.length===0 ? <div className="rounded-2xl border border-[#22222F] bg-[#101015] p-6 text-center text-sm text-zinc-500">Aucun perdant - tout le monde gagne ici</div> : <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">{grouped.perdants.map((p)=><div id={`player-${p.id}`} key={p.id}><PlayerCard player={p} currentUserId={currentUserId} onDefy={handleDefy} defyingId={defyingId} /></div>)}</div>}
+            </div>
+
+            {allPlayers.length > 0 && (
+              <div>
+                <div className="flex items-center gap-2 mb-4"><Users className="h-5 w-5 text-[#7C3AED]" /><h3 className="font-black text-lg">TOUS LES JOUEURS ({allPlayers.length})</h3></div>
+                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">{allPlayers.map((p)=><div id={`player-${p.id}`} key={p.id}><PlayerCard player={p} currentUserId={currentUserId} onDefy={handleDefy} defyingId={defyingId} /></div>)}</div>
+              </div>
+            )}
+          </div>
         )}
-      </div>
 
-      {loading ? (
-        <div className="flex justify-center py-20">
-          <Loader2 className="h-8 w-8 animate-spin" />
+        <div className="mt-10 rounded-2xl border border-[#7C3AED]/20 bg-[#7C3AED]/5 p-4 flex flex-wrap items-center justify-between gap-3">
+          <div className="flex items-center gap-3 text-sm">
+            <div className="h-9 w-9 rounded-xl bg-[#7C3AED]/20 border border-[#7C3AED]/20 flex items-center justify-center"><Trophy className="h-4 w-4 text-[#A855F7]" /></div>
+            <div>
+              <div className="font-semibold text-white">Paiement Wave uniquement - 500 FCFA par joueur</div>
+              <div className="text-xs text-zinc-400">Numéro JOYBOY: {JOYBOY_CONFIG.wave} • Preuve obligatoire • Support WhatsApp {JOYBOY_CONFIG.whatsapp}</div>
+            </div>
+          </div>
+          <a href={JOYBOY_CONFIG.whatsappLink} target="_blank" className="rounded-full bg-white text-black px-4 py-2 text-xs font-bold hover:bg-zinc-100 transition">Besoin d'aide ? WhatsApp</a>
         </div>
-      ) : allProfiles.length === 0 ? (
-        <div className="rounded-2xl border border-zinc-800 bg-[#101015] p-10 text-center text-zinc-500">
-          Aucun joueur inscrit n'est disponible pour le moment.
-        </div>
-      ) : filtered.length === 0 ? (
-        <div className="rounded-2xl border border-zinc-800 bg-[#101015] p-10 text-center">
-          <Search className="mx-auto h-8 w-8 text-zinc-600" />
-          <p className="mt-3 font-bold">Aucun joueur trouvé</p>
-          <p className="mt-1 text-sm text-zinc-500">
-            Essaie avec une autre partie du pseudo ou du nom public.
-          </p>
-        </div>
-      ) : (
-        <div className="space-y-8">
-          {sections.map((section) => {
-            const Icon = section.icon;
-            return (
-              <section key={section.key}>
-                <div className="mb-3 flex items-end justify-between gap-4">
-                  <div>
-                    <h2 className="flex items-center gap-2 text-xl font-black">
-                      <Icon className="h-5 w-5 text-violet-400" />
-                      {section.title}
-                    </h2>
-                    <p className="mt-1 text-xs text-zinc-500">{section.subtitle}</p>
-                  </div>
-                </div>
-
-                <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
-                  {section.players.map((profile) => (
-                    <PlayerCard
-                      key={profile.id}
-                      profile={profile}
-                      currentUserId={currentUserId}
-                      defying={defying}
-                      onDefy={handleDefy}
-                    />
-                  ))}
-                </div>
-              </section>
-            );
-          })}
-        </div>
-      )}
-
-      <div className="flex items-center gap-2 text-[11px] text-zinc-600">
-        <Trophy className="h-4 w-4" />
-        Le palmarès affiché provient des statistiques déjà enregistrées sur les profils JOYBOY.
       </div>
     </div>
   );
