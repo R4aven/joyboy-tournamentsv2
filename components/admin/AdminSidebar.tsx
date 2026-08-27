@@ -1,3 +1,4 @@
+
 "use client";
 import Link from "next/link";
 import { usePathname, useRouter } from "next/navigation";
@@ -47,13 +48,13 @@ export default function AdminSidebar() {
 
   const SidebarContent = () => (
     <div className="flex h-full flex-col">
-      <div className="flex items-center gap-3 px-6 py-6 border-b border-joy-border">
-        <div className="h-10 w-10 rounded-xl bg-gradient-joy flex items-center justify-center glow-violet">
+      <div className="flex items-center gap-3 px-6 py-6 border-b border-[#22222F]">
+        <div className="h-10 w-10 rounded-xl bg-gradient-to-br from-[#7C3AED] to-[#06B6D4] flex items-center justify-center">
           <Crown className="h-5 w-5 text-white" />
         </div>
         <div>
           <h1 className="font-bold text-white leading-tight">JOYBOY</h1>
-          <p className="text-[10px] tracking-[0.3em] text-joy-violet font-bold">ADMIN PANEL</p>
+          <p className="text-[10px] tracking-[0.3em] text-violet-400 font-bold">ADMIN PANEL</p>
         </div>
       </div>
 
@@ -68,8 +69,8 @@ export default function AdminSidebar() {
               className={cn(
                 "flex items-center gap-3 rounded-xl px-4 py-3 text-sm font-medium transition-all",
                 active
-                  ? "bg-joy-violet text-white shadow-glow"
-                  : "text-zinc-400 hover:bg-joy-card hover:text-white border border-transparent hover:border-joy-border"
+                  ? "bg-violet-600 text-white shadow-lg"
+                  : "text-zinc-400 hover:bg-[#15151E] hover:text-white border border-transparent hover:border-[#22222F]"
               )}
             >
               <item.icon className="h-[18px] w-[18px]" />
@@ -79,8 +80,8 @@ export default function AdminSidebar() {
         })}
       </nav>
 
-      <div className="p-4 border-t border-joy-border space-y-3">
-        <div className="rounded-xl bg-joy-card border border-joy-border p-3">
+      <div className="p-4 border-t border-[#22222F] space-y-3">
+        <div className="rounded-xl bg-[#15151E] border border-[#22222F] p-3">
           <p className="text-xs text-zinc-400">Paiements Wave</p>
           <p className="text-sm font-mono font-bold text-white">01 51 42 99 18</p>
           <p className="text-xs text-zinc-500 mt-1">WhatsApp: 07 48 23 52 26</p>
@@ -98,20 +99,20 @@ export default function AdminSidebar() {
   return (
     <>
       {/* Mobile Top Bar */}
-      <div className="lg:hidden flex items-center justify-between px-4 py-3 bg-joy-black border-b border-joy-border sticky top-0 z-40">
+      <div className="lg:hidden flex items-center justify-between px-4 py-3 bg-[#08080B] border-b border-[#22222F] sticky top-0 z-40">
         <div className="flex items-center gap-2">
-          <div className="h-8 w-8 rounded-lg bg-gradient-joy flex items-center justify-center">
+          <div className="h-8 w-8 rounded-lg bg-gradient-to-br from-[#7C3AED] to-[#06B6D4] flex items-center justify-center">
             <Crown className="h-4 w-4 text-white" />
           </div>
-          <span className="font-bold">JOYBOY ADMIN</span>
+          <span className="font-bold text-white">JOYBOY ADMIN</span>
         </div>
-        <button onClick={() => setOpen(!open)} className="p-2 rounded-lg bg-joy-card border border-joy-border">
+        <button onClick={() => setOpen(!open)} className="p-2 rounded-lg bg-[#15151E] border border-[#22222F] text-white">
           {open ? <X className="h-5 w-5" /> : <Menu className="h-5 w-5" />}
         </button>
       </div>
 
-      {/* Desktop Sidebar */}
-      <aside className="hidden lg:flex fixed left-0 top-0 h-screen w-[280px] bg-[#0C0C10] border-r border-joy-border z-30 flex-col">
+      {/* Desktop Sidebar - FIXED mais avec scroll */}
+      <aside className="hidden lg:flex fixed left-0 top-0 h-screen w-[280px] bg-[#0C0C10] border-r border-[#22222F] z-30 flex-col overflow-hidden">
         <SidebarContent />
       </aside>
 
@@ -119,7 +120,7 @@ export default function AdminSidebar() {
       {open && (
         <div className="lg:hidden fixed inset-0 z-50 flex">
           <div className="flex-1 bg-black/60 backdrop-blur-sm" onClick={() => setOpen(false)} />
-          <div className="w-[300px] bg-[#0C0C10] border-l border-joy-border h-full animate-in slide-in-from-right">
+          <div className="w-[300px] bg-[#0C0C10] border-l border-[#22222F] h-full">
             <SidebarContent />
           </div>
         </div>
