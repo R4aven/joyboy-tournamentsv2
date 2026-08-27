@@ -2,6 +2,7 @@ import type { Metadata } from "next";
 import { Inter, Space_Grotesk } from "next/font/google";
 import "./globals.css";
 import Navbar from "@/components/Navbar";
+import PromoBanner from "@/components/PromoBanner";
 import Footer from "@/components/Footer";
 import { Toaster } from "sonner";
 
@@ -54,6 +55,7 @@ export default function RootLayout({
             <div className="absolute top-[40%] right-0 h-[500px] w-[600px] rounded-full bg-[#06B6D4]/[0.06] blur-[100px]" />
             <div className="absolute bottom-0 left-0 h-[400px] w-[800px] rounded-full bg-[#7C3AED]/[0.05] blur-[100px]" />
           </div>
+          <PromoBanner />
           <Navbar />
           <main className="relative flex-1">{children}</main>
           <Footer />
