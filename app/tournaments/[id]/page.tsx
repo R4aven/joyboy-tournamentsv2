@@ -1,4 +1,4 @@
-"use client";
+﻿"use client";
 
 import { useEffect, useMemo, useState } from "react";
 import Link from "next/link";
@@ -67,7 +67,6 @@ useState(false);
 useEffect(() => {
 if (!id) return;
 
-```
 let mounted = true;
 
 const load = async () => {
@@ -135,7 +134,6 @@ load();
 return () => {
   mounted = false;
 };
-```
 
 }, [id]);
 
@@ -144,7 +142,6 @@ const original = Number(
 t?.entry_fee || 0
 );
 
-```
 if (!promo) {
   return {
     original,
@@ -163,7 +160,6 @@ return {
     Number(promo.final_price) ||
     original,
 };
-```
 
 }, [t, promo]);
 
@@ -172,7 +168,6 @@ e: React.ChangeEvent<HTMLInputElement>
 ) => {
 const f = e.target.files?.[0];
 
-```
 if (!f) return;
 
 const validation =
@@ -200,7 +195,6 @@ setProofFile(f);
 setProofPreview(
   URL.createObjectURL(f)
 );
-```
 
 };
 
@@ -209,7 +203,6 @@ if (!id || !promoCode.trim()) {
 return;
 }
 
-```
 setPromoLoading(true);
 setPromoError("");
 setPromo(null);
@@ -243,13 +236,13 @@ try {
       INVALID:
         "Code promo invalide",
       EXPIRED:
-        "Ce code promo a expiré",
+        "Ce code promo a expirÃ©",
       EXHAUSTED:
         "Ce code promo n'est plus disponible",
       TOURNAMENT:
         "Ce code promo n'est pas valable pour ce tournoi",
       INACTIVE:
-        "Ce code promo est désactivé",
+        "Ce code promo est dÃ©sactivÃ©",
       NOT_STARTED:
         "Cette promotion n'est pas encore active",
     };
@@ -311,7 +304,7 @@ try {
   });
 
   toast.success(
-    `Code ${result.code || promoCode.trim()} appliqué.`
+    `Code ${result.code || promoCode.trim()} appliquÃ©.`
   );
 } catch (error) {
   console.error(
@@ -320,12 +313,11 @@ try {
   );
 
   setPromoError(
-    "Impossible de vérifier le code promo."
+    "Impossible de vÃ©rifier le code promo."
   );
 } finally {
   setPromoLoading(false);
 }
-```
 
 };
 
@@ -337,7 +329,6 @@ toast.error(
 return;
 }
 
-```
 if (!t) {
   toast.error(
     "Tournoi introuvable."
@@ -427,7 +418,7 @@ try {
 
   if (!row) {
     throw new Error(
-      "Inscription non retournée par le serveur."
+      "Inscription non retournÃ©e par le serveur."
     );
   }
 
@@ -462,14 +453,14 @@ try {
   }
 
   toast.success(
-    `Inscription enregistrée — ${
+    `Inscription enregistrÃ©e â€” ${
       Number(
         row.final_price ??
           price.final
       ).toLocaleString(
         "fr-FR"
       )
-    } FCFA à payer.`
+    } FCFA Ã  payer.`
   );
 
   setPlayers((prev) => [
@@ -531,7 +522,7 @@ try {
     msg.includes("duplicate")
   ) {
     toast.error(
-      "Tu es déjà inscrit à ce tournoi."
+      "Tu es dÃ©jÃ  inscrit Ã  ce tournoi."
     );
   } else if (
     msg.includes(
@@ -545,18 +536,17 @@ try {
     msg.includes("promo")
   ) {
     toast.error(
-      "Le code promo n'est plus disponible. Vérifie-le puis réessaie."
+      "Le code promo n'est plus disponible. VÃ©rifie-le puis rÃ©essaie."
     );
   } else {
     toast.error(
       e?.message ||
-        "Impossible de finaliser l'inscription. Réessaie."
+        "Impossible de finaliser l'inscription. RÃ©essaie."
     );
   }
 } finally {
   setRegistering(false);
 }
-```
 
 };
 
@@ -593,9 +583,8 @@ return ( <div className="min-h-screen bg-[#08080B] text-white"> <div className="
        href="/tournaments"
        className="text-sm text-zinc-500 hover:text-white transition"
      >
-← Tous les tournois </Link>
+â† Tous les tournois </Link>
 
-```
     {/* HEADER */}
     <div className="mt-5">
       <div className="flex flex-wrap items-center gap-2">
@@ -615,7 +604,7 @@ return ( <div className="min-h-screen bg-[#08080B] text-white"> <div className="
       <p className="mt-2 text-sm text-zinc-400">
         {players.length}/
         {t.max_players} joueurs
-        {" • "}
+        {" â€¢ "}
         {Number(
           t.entry_fee || 0
         ).toLocaleString(
@@ -657,7 +646,7 @@ return ( <div className="min-h-screen bg-[#08080B] text-white"> <div className="
             "fr-FR"
           )}{" "}
           FCFA
-          {" • "}
+          {" â€¢ "}
           Wave {t.wave_number}
         </p>
       </div>
@@ -678,22 +667,22 @@ return ( <div className="min-h-screen bg-[#08080B] text-white"> <div className="
     {/* DESCRIPTION */}
     <div className="mt-8 rounded-2xl border border-zinc-800 bg-[#101015] p-6">
       <h2 className="text-lg font-black">
-        À propos du tournoi
+        Ã€ propos du tournoi
       </h2>
 
       <p className="mt-3 text-sm leading-relaxed text-zinc-300 whitespace-pre-wrap">
         {t.description ||
-          "Tournoi e-sport avec bracket à élimination directe."}
+          "Tournoi e-sport avec bracket Ã  Ã©limination directe."}
       </p>
 
       <div className="mt-5 rounded-xl bg-[#0E0E14] border border-zinc-800 p-4">
         <p className="text-xs text-zinc-500">
-          Règlement
+          RÃ¨glement
         </p>
 
         <p className="text-sm mt-1 whitespace-pre-wrap text-zinc-300">
           {t.rules ||
-            "Respect, fair-play et décision finale de l'administration."}
+            "Respect, fair-play et dÃ©cision finale de l'administration."}
         </p>
       </div>
     </div>
@@ -704,12 +693,12 @@ return ( <div className="min-h-screen bg-[#08080B] text-white"> <div className="
         <div>
           <h2 className="text-lg font-black flex items-center gap-2">
             <Trophy className="h-5 w-5 text-amber-400" />
-            Répartition des gains
+            RÃ©partition des gains
           </h2>
 
           <p className="mt-1 text-xs text-zinc-500">
-            Les montants sont ceux définis par
-            l'administration lors de la création du tournoi.
+            Les montants sont ceux dÃ©finis par
+            l'administration lors de la crÃ©ation du tournoi.
           </p>
         </div>
       </div>
@@ -718,7 +707,7 @@ return ( <div className="min-h-screen bg-[#08080B] text-white"> <div className="
         {/* 1ER */}
         <div className="rounded-2xl border border-amber-500/30 bg-amber-500/10 p-5 text-center">
           <div className="text-3xl">
-            🥇
+            ðŸ¥‡
           </div>
 
           <p className="mt-2 text-xs font-black uppercase tracking-wider text-amber-300">
@@ -736,7 +725,7 @@ return ( <div className="min-h-screen bg-[#08080B] text-white"> <div className="
         {/* 2E */}
         <div className="rounded-2xl border border-zinc-700 bg-[#15151E] p-5 text-center">
           <div className="text-3xl">
-            🥈
+            ðŸ¥ˆ
           </div>
 
           <p className="mt-2 text-xs font-black uppercase tracking-wider text-zinc-300">
@@ -754,7 +743,7 @@ return ( <div className="min-h-screen bg-[#08080B] text-white"> <div className="
         {/* 3E */}
         <div className="rounded-2xl border border-orange-500/30 bg-orange-500/10 p-5 text-center">
           <div className="text-3xl">
-            🥉
+            ðŸ¥‰
           </div>
 
           <p className="mt-2 text-xs font-black uppercase tracking-wider text-orange-300">
@@ -780,7 +769,7 @@ return ( <div className="min-h-screen bg-[#08080B] text-white"> <div className="
 
       {!user ? (
         <div className="mt-4 rounded-xl bg-amber-500/10 border border-amber-500/20 p-4 text-sm text-amber-200">
-          Connecte-toi pour participer à ce tournoi.
+          Connecte-toi pour participer Ã  ce tournoi.
         </div>
       ) : players.some(
           (p) =>
@@ -788,7 +777,7 @@ return ( <div className="min-h-screen bg-[#08080B] text-white"> <div className="
             user.id
         ) ? (
         <div className="mt-4 rounded-xl bg-emerald-500/10 border border-emerald-500/20 p-4 text-sm text-emerald-300">
-          ✓ Tu es inscrit à ce tournoi.
+          âœ“ Tu es inscrit Ã  ce tournoi.
         </div>
       ) : (
         <>
@@ -799,7 +788,7 @@ return ( <div className="min-h-screen bg-[#08080B] text-white"> <div className="
             ).toLocaleString(
               "fr-FR"
             )}{" "}
-            FCFA. Le paiement doit correspondre au montant final affiché.
+            FCFA. Le paiement doit correspondre au montant final affichÃ©.
           </p>
 
           {/* PROMO */}
@@ -832,7 +821,7 @@ return ( <div className="min-h-screen bg-[#08080B] text-white"> <div className="
                 className="rounded-xl bg-white text-black px-5 py-2.5 text-xs font-black disabled:opacity-50"
               >
                 {promoLoading
-                  ? "Vérification..."
+                  ? "VÃ©rification..."
                   : "APPLIQUER"}
               </button>
             </div>
@@ -847,7 +836,7 @@ return ( <div className="min-h-screen bg-[#08080B] text-white"> <div className="
             {promo && (
               <p className="text-xs text-emerald-300 flex items-center gap-1">
                 <Check className="h-3 w-3" />
-                Code {promo.code} appliqué.
+                Code {promo.code} appliquÃ©.
               </p>
             )}
 
@@ -867,7 +856,7 @@ return ( <div className="min-h-screen bg-[#08080B] text-white"> <div className="
 
               <div className="flex justify-between">
                 <span className="text-zinc-500">
-                  Réduction
+                  RÃ©duction
                 </span>
 
                 <span className="text-emerald-400">
@@ -884,7 +873,7 @@ return ( <div className="min-h-screen bg-[#08080B] text-white"> <div className="
 
               <div className="flex justify-between text-base font-black">
                 <span>
-                  Total à payer
+                  Total Ã  payer
                 </span>
 
                 <span>
@@ -919,7 +908,7 @@ return ( <div className="min-h-screen bg-[#08080B] text-white"> <div className="
             {proofPreview && (
               <img
                 src={proofPreview}
-                alt="Aperçu"
+                alt="AperÃ§u"
                 className="mt-4 max-h-64 mx-auto rounded-xl border border-zinc-800"
               />
             )}
@@ -939,7 +928,7 @@ return ( <div className="min-h-screen bg-[#08080B] text-white"> <div className="
               ? "Upload en cours..."
               : t.status !==
                 "OUVERT"
-              ? "Inscriptions fermées"
+              ? "Inscriptions fermÃ©es"
               : "S'inscrire + Envoyer preuve"}
           </button>
         </>
@@ -1016,8 +1005,8 @@ return ( <div className="min-h-screen bg-[#08080B] text-white"> <div className="
 
                     <p className="text-xs text-zinc-500">
                       {p.is_paid
-                        ? "✓ Paiement validé"
-                        : "◷ En attente"}
+                        ? "âœ“ Paiement validÃ©"
+                        : "â—· En attente"}
                     </p>
                   </div>
                 </div>
@@ -1030,7 +1019,7 @@ return ( <div className="min-h-screen bg-[#08080B] text-white"> <div className="
                   }`}
                 >
                   {p.is_paid
-                    ? "VALIDÉ"
+                    ? "VALIDÃ‰"
                     : "ATTENTE"}
                 </span>
               </div>
@@ -1041,7 +1030,6 @@ return ( <div className="min-h-screen bg-[#08080B] text-white"> <div className="
     </div>
   </div>
 </div>
-```
 
 );
 }
