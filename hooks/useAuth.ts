@@ -1,4 +1,3 @@
-
 "use client";
 import { useEffect, useState } from "react";
 import { createClient } from "@/lib/supabase/client";
@@ -11,26 +10,44 @@ export function useAuth() {
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    const getUser = async () => {
-      try {
-        const { data: { user } } = await supabase.auth.getUser();
-        setUser(user);
-        if (user) {
-          const { data } = await supabase.from("profiles").select("id, username, display_name, avatar_url, bio, role, wins, losses, level").eq("id", user.id).maybeSingle();
-          if (data) setProfile(data);
-        }
-      } catch (e) { console.error(e); }
-      finally { setLoading(false); }
+    let active = true;
+    let profileChannel: any = null;
+
+    const loadProfile = async (userId: string) => {
+      const { data } = await supabase.from("profiles").select("id, username, display_name, avatar_url, bio, role, wins, losses, level").eq("id", userId).maybeSingle();
+      if (active && data) setProfile(data);
     };
-    getUser();
-    const { data: listener } = supabase.auth.onAuthStateChange(async (_event, session) => {
-      setUser(session?.user ?? null);
-      if (session?.user) {
-        const { data } = await supabase.from("profiles").select("id, username, display_name, avatar_url, bio, role, wins, losses, level").eq("id", session.user.id).maybeSingle();
-        if (data) setProfile(data);
-      } else setProfile(null);
+
+    const init = async () => {
+      const { data: { user: initialUser } } = await supabase.auth.getUser();
+      if (!active) return;
+      setUser(initialUser);
+      if (initialUser) await loadProfile(initialUser.id);
+      setLoading(false);
+
+      profileChannel = supabase.channel(`profile-sync-${initialUser?.id || "anonymous"}`).on(
+        "postgres_changes",
+        { event: "UPDATE", schema: "public", table: "profiles" },
+        (payload: any) => {
+          if (initialUser && payload.new?.id === initialUser.id) setProfile((current: any) => ({ ...(current || {}), ...payload.new }));
+        }
+      ).subscribe();
+    };
+
+    const { data: listener } = supabase.auth.onAuthStateChange(async (_event: any, session: any) => {
+      if (!active) return;
+      const nextUser = session?.user ?? null;
+      setUser(nextUser);
+      if (nextUser) await loadProfile(nextUser.id); else setProfile(null);
     });
-    return () => { listener.subscription.unsubscribe(); };
+
+    init();
+    return () => {
+      active = false;
+      listener.subscription.unsubscribe();
+      if (profileChannel) supabase.removeChannel(profileChannel);
+    };
   }, []);
+
   return { user, profile, loading, supabase };
 }

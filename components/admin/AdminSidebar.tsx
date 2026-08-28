@@ -12,6 +12,8 @@ import {
   AlertTriangle,
   Banknote,
   Bell,
+  Tag,
+  MessageCircle,
   Settings,
   LogOut,
   Menu,
@@ -31,7 +33,10 @@ const NAV = [
   { href: "/admin/matches", label: "Matchs", icon: Gamepad2 },
   { href: "/admin/disputes", label: "Litiges", icon: AlertTriangle },
   { href: "/admin/gains", label: "Gains", icon: Banknote },
+  { href: "/admin/promo-codes", label: "Codes promo", icon: Tag },
   { href: "/admin/notifications", label: "Notifications", icon: Bell },
+  { href: "/admin/messages", label: "Messages", icon: MessageCircle },
+  { href: "/admin/absence-reports", label: "Absences 1V1", icon: AlertTriangle },
   { href: "/admin/settings", label: "Paramètres", icon: Settings },
 ];
 

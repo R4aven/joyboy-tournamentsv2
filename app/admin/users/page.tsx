@@ -48,7 +48,7 @@ export default function AdminUsersPage() {
     };
     load();
     // Realtime pour voir nouveau joueur direct
-    const ch = supabase.channel("admin-users").on("postgres_changes", { event: "INSERT", schema: "public", table: "profiles" }, (payload) => {
+    const ch = supabase.channel("admin-users").on("postgres_changes", { event: "INSERT", schema: "public", table: "profiles" }, (payload: any) => {
       const p = payload.new as Profile;
       setProfiles(prev => [p, ...prev]);
       setFiltered(prev => [p, ...prev]);

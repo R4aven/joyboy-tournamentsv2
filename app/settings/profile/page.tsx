@@ -6,6 +6,7 @@ import { createClient } from "@/lib/supabase/client";
 import { toast } from "sonner";
 import { Save, LogOut, User, FileText, Upload, Camera } from "lucide-react";
 import { useRouter } from "next/navigation";
+import { createSafeStoragePath, validateImageFile } from "@/lib/storage/safePath";
 
 export default function EditProfilePage() {
   const { user, profile } = useAuth() as any;
@@ -27,7 +28,8 @@ export default function EditProfilePage() {
   const handleAvatar = (e: React.ChangeEvent<HTMLInputElement>) => {
     const f = e.target.files?.[0];
     if (!f) return;
-    if (f.size > 2*1024*1024) { toast.error("Photo trop lourde >2Mo"); return; }
+    const validation = validateImageFile(f, 5 * 1024 * 1024);
+    if (validation) { toast.error(validation); return; }
     setAvatarFile(f);
     setAvatarPreview(URL.createObjectURL(f));
   };
@@ -36,15 +38,14 @@ export default function EditProfilePage() {
     if (!avatarFile || !user) return null;
     setUploading(true);
     try {
-      const fileName = `${user.id}/${Date.now()}_${avatarFile.name}`;
-      const { error } = await supabase.storage.from("avatars").upload(fileName, avatarFile, { cacheControl: "3600", upsert: true });
+      const path = createSafeStoragePath("", user.id, avatarFile, "avatar").replace(/^\//, "");
+      const { error } = await supabase.storage.from("avatars").upload(path, avatarFile, { cacheControl: "3600", upsert: false, contentType: avatarFile.type });
       if (error) throw error;
-      const { data } = supabase.storage.from("avatars").getPublicUrl(fileName);
-      return data.publicUrl;
-    } catch (e:any) {
-      toast.error("Erreur upload photo: "+e.message);
-      return null;
-    } finally { setUploading(false); }
+      const { data } = supabase.storage.from("avatars").getPublicUrl(path);
+      if (!data?.publicUrl) throw new Error("URL indisponible");
+      return `${data.publicUrl}?t=${Date.now()}`;
+    } catch (e:any) { console.error("Avatar upload failed", e); toast.error("Impossible d'envoyer la photo. Vérifie le fichier et réessaie."); return null; }
+    finally { setUploading(false); }
   };
 
   const save = async () => {
@@ -55,7 +56,8 @@ export default function EditProfilePage() {
       let avatarUrl = profile?.avatar_url || null;
       if (avatarFile) {
         const uploaded = await uploadAvatar();
-        if (uploaded) avatarUrl = uploaded;
+        if (!uploaded) return;
+        avatarUrl = uploaded;
       }
       const { error } = await supabase.from("profiles").update({ 
         display_name: form.display_name, 
@@ -66,7 +68,7 @@ export default function EditProfilePage() {
         avatar_url: avatarUrl
       }).eq("id", user.id);
       if (error) throw error;
-      toast.success("Profil + photo mis à jour ✅ Visible par tous y compris admin - plus de JD, ta vraie photo s'affiche");
+      toast.success("Profil mis à jour !");
       router.refresh();
     } catch (e:any) { toast.error(e.message); }
     finally { setSaving(false); }

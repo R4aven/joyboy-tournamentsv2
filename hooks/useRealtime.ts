@@ -87,7 +87,7 @@ export function useRealtime() {
           table: "notifications",
           filter: `user_id=eq.${user.id}`,
         },
-        (payload) => {
+        (payload: any) => {
           const newNotification = payload.new as Notification;
 
           setNotifications((current) => {
@@ -156,7 +156,7 @@ export function useRealtime() {
           table: "notifications",
           filter: `user_id=eq.${user.id}`,
         },
-        (payload) => {
+        (payload: any) => {
           const updatedNotification = payload.new as Notification;
 
           setNotifications((current) =>
@@ -180,7 +180,7 @@ export function useRealtime() {
           table: "notifications",
           filter: `user_id=eq.${user.id}`,
         },
-        (payload) => {
+        (payload: any) => {
           const deletedNotification = payload.old as Notification;
 
           setNotifications((current) =>
@@ -192,7 +192,7 @@ export function useRealtime() {
         }
       )
 
-      .subscribe((status) => {
+      .subscribe((status: any) => {
         if (status === "CHANNEL_ERROR") {
           console.error("Erreur Supabase Realtime notifications");
         }

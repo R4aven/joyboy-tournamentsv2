@@ -1,78 +1,11 @@
-
 "use client";
 import { useEffect, useState } from "react";
 import Link from "next/link";
 import { createClient } from "@/lib/supabase/client";
 
-type Promo = {
-  id: string;
-  type: string;
-  title: string;
-  subtitle?: string;
-  badge_text?: string;
-  cta_text?: string;
-  cta_link?: string;
-  background_color?: string;
-  text_color?: string;
-  image_url?: string;
-};
-
-export default function PromoBanner() {
-  const supabase = createClient();
-  const [promos, setPromos] = useState<Promo[]>([]);
-  const [current, setCurrent] = useState(0);
-
-  useEffect(() => {
-    const load = async () => {
-      const { data } = await supabase.from("promos").select("*").eq("is_active", true).order("display_order",{ascending:true}).order("created_at",{ascending:false}).limit(10);
-      if (data) setPromos(data);
-    };
-    load();
-    // Realtime
-    const channel = supabase.channel("promos-banner").on("postgres_changes",{event:"*", schema:"public", table:"promos"}, load).subscribe();
-    return () => { supabase.removeChannel(channel); };
-  }, []);
-
-  useEffect(() => {
-    if (promos.length <= 1) return;
-    const interval = setInterval(() => setCurrent((c) => (c + 1) % promos.length), 4000);
-    return () => clearInterval(interval);
-  }, [promos.length]);
-
-  if (promos.length === 0) return null;
-
-  const promo = promos[current];
-
-  return (
-    <div className="relative w-full h-[52px] overflow-hidden flex items-center text-white transition-all duration-500" style={{ backgroundColor: promo.background_color || "#E30613", color: promo.text_color || "#fff" }}>
-      {/* Background pattern like your image */}
-      <div className="absolute inset-0 bg-[radial-gradient(circle_at_30%_50%,rgba(255,255,255,0.15),transparent_50%)]" />
-      
-      <div className="relative mx-auto max-w-7xl w-full px-4 md:px-6 flex items-center justify-between gap-4">
-        <div className="flex items-center gap-3 md:gap-6 min-w-0">
-          {promo.subtitle && <span className="hidden md:flex items-center gap-2 text-[10px] tracking-[0.2em] uppercase opacity-90 whitespace-nowrap"><span className="h-1.5 w-1.5 rounded-full bg-white" />{promo.subtitle}</span>}
-          <h2 className="font-black text-[15px] md:text-[18px] leading-none tracking-tight truncate">{promo.title}</h2>
-          {promo.badge_text && <span className="hidden md:inline-flex bg-white text-[11px] font-black px-3 py-1 rounded-full whitespace-nowrap" style={{ color: promo.background_color || "#E30613" }}>{promo.badge_text}</span>}
-        </div>
-        
-        <div className="flex items-center gap-3 shrink-0">
-          {promo.cta_text && (
-            <Link href={promo.cta_link || "/tournaments"} className="text-[11px] md:text-[12px] font-bold underline underline-offset-4 hover:opacity-80 whitespace-nowrap">
-              {promo.cta_text}
-            </Link>
-          )}
-          {promo.image_url && <img src={promo.image_url} alt="" className="hidden md:block h-[52px] w-auto object-contain ml-2" />}
-        </div>
-      </div>
-
-      {/* Dots if multiple promos - auto scroll like in your image */}
-      {promos.length > 1 && (
-        <div className="absolute bottom-1 left-1/2 -translate-x-1/2 flex gap-1.5">
-          {promos.map((_, i) => (
-            <button key={i} onClick={()=>setCurrent(i)} className={`h-1.5 rounded-full transition-all ${i===current ? "w-6 bg-white" : "w-1.5 bg-white/40"}`} />
-          ))}
-        </div>
-      )}
-    </div>
-  );
+export default function PromoBanner(){
+ const supabase=createClient(); const [promo,setPromo]=useState<any>(null);
+ useEffect(()=>{const load=async()=>{const {data}=await supabase.from("promo_codes").select("id,code,discount_type,discount_value,max_uses,used_count,active,starts_at,expires_at,show_banner,tournament_ids").eq("active",true).eq("show_banner",true).order("created_at",{ascending:false}).limit(20); const now=Date.now(); const p=(data||[]).find((x:any)=>(!x.starts_at||new Date(x.starts_at).getTime()<=now)&&(!x.expires_at||new Date(x.expires_at).getTime()>now)&&(!x.max_uses||x.max_uses<=0||x.used_count<x.max_uses)); setPromo(p||null)}; load(); const ch=supabase.channel("promo-banner-final").on("postgres_changes",{event:"*",schema:"public",table:"promo_codes"},load).subscribe(); return()=>{supabase.removeChannel(ch)}} ,[]);
+ if(!promo)return null; const discount=promo.discount_type==="percent"?`-${promo.discount_value}%`:`-${promo.discount_value} FCFA`;
+ return <div className="w-full border-b border-violet-500/20 bg-gradient-to-r from-violet-700/80 via-[#11111A] to-cyan-700/70 text-white"><div className="mx-auto max-w-7xl px-4 py-3 flex flex-wrap items-center justify-center gap-3 text-center"><span className="text-xs font-black uppercase tracking-widest">🔥 PROMOTION JOYBOY</span><span className="text-sm font-bold">{discount} sur l'inscription</span><span className="rounded-full bg-white/10 border border-white/15 px-3 py-1 text-xs font-black">Code : {promo.code}</span><button onClick={()=>navigator.clipboard?.writeText(promo.code)} className="rounded-lg bg-white text-black px-3 py-1.5 text-xs font-black">Copier le code</button><Link href="/tournaments" className="text-xs font-black underline underline-offset-4">Participer</Link></div></div>
 }

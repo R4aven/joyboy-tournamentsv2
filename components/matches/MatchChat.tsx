@@ -18,7 +18,7 @@ export function MatchChat({ matchId, currentUserId }: { matchId: string, current
     };
     fetchMessages();
 
-    const channel = supabase.channel(`match:${matchId}`).on('postgres_changes', { event: 'INSERT', schema: 'public', table: 'match_messages', filter: `match_id=eq.${matchId}` }, (payload) => {
+    const channel = supabase.channel(`match:${matchId}`).on('postgres_changes', { event: 'INSERT', schema: 'public', table: 'match_messages', filter: `match_id=eq.${matchId}` }, (payload: any) => {
       setMessages(prev => [...prev, payload.new]);
     }).subscribe();
 
@@ -48,7 +48,7 @@ export function MatchChat({ matchId, currentUserId }: { matchId: string, current
 
   return (
     <div className="rounded-[20px] border border-[#22222F] bg-[#101015] flex flex-col h-[400px]">
-      <div className="p-4 border-b border-[#22222F]"><h3 className="font-black text-[13px]">💬 Chat privé adversaires - Visible uniquement par vous 2 + admin</h3><p className="text-[10px] text-zinc-500">RLS: seulement participants + admin. Temps réel Supabase Realtime.</p></div>
+      <div className="p-4 border-b border-[#22222F]"><h3 className="font-black text-[13px]">💬 Chat privé adversaires - Visible uniquement par vous 2 + admin</h3><p className="text-[10px] text-zinc-500">Conversation privée entre les participants et l'administration.</p></div>
       <div className="flex-1 overflow-auto p-4 space-y-3">
         {messages.map((m) => (
           <div key={m.id} className={`flex ${m.sender_id === currentUserId ? "justify-end" : "justify-start"}`}>

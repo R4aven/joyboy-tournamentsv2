@@ -20,7 +20,10 @@ export function AbsenceReportButton({ matchId, reportedPlayerId, reporterId }: {
         status: 'PENDING'
       });
       if (error) throw error;
-      toast.success("Signalement envoyé - Admin va vérifier 🚨");
+      const { error: matchError } = await supabase.from("matches").update({ absence_status: "PENDING", status_detail: "Absence signalée, vérification administrative requise" }).eq("id", matchId);
+      if (matchError) throw matchError;
+      await supabase.from("notifications").insert({ user_id: reportedPlayerId, type: "ADMIN", title: "🚨 Signalement d'absence", message: "Ton adversaire a signalé une absence. L'administration va vérifier le délai et le contexte.", link: `/matches/${matchId}`, related_id: matchId, related_type: "match" });
+      toast.success("Signalement envoyé. L'administration va vérifier.");
       setShowConfirm(false);
     } catch (e: any) {
       toast.error(e.message || "Erreur signalement");

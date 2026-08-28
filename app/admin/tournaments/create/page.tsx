@@ -47,7 +47,7 @@ export default function CreateTournamentPage() {
         entry_fee: Number(form.prix_inscription),
         status: "OUVERT",
         rules: form.reglement,
-        format: Number(form.places) === 10 ? "BRACKET_10" : "ELIMINATION_DIRECTE",
+        format: "ELIMINATION_DIRECTE",
         prize_distribution: {
           "1": Number(form.gains_champion),
           "2": Number(form.gains_finaliste),
@@ -63,7 +63,7 @@ export default function CreateTournamentPage() {
       try {
         const { data: profiles } = await supabase.from("profiles").select("id").limit(500);
         if (profiles?.length) {
-          const notifs = profiles.map((p) => ({
+          const notifs = profiles.map((p: any) => ({
             user_id: p.id,
             type: "TOURNOI_OUVERT",
             title: `Nouveau tournoi: ${form.nom}`,
@@ -90,13 +90,13 @@ export default function CreateTournamentPage() {
     <div className="max-w-4xl mx-auto space-y-6">
       <div>
         <h1 className="text-3xl font-black flex items-center gap-3"><span className="rounded-xl bg-gradient-to-br from-violet-600 to-cyan-500 p-2"><Trophy className="h-6 w-6 text-white" /></span>Créer un tournoi</h1>
-        <p className="text-zinc-400 mt-2 text-sm">Fix bug date - compatible schema (start_date)</p>
+        <p className="text-zinc-400 mt-2 text-sm">Crée un tournoi avec une capacité libre de 2 à 128 joueurs.</p>
       </div>
       <form onSubmit={handleSubmit} className="rounded-2xl border border-zinc-800 bg-[#101015] p-6 lg:p-8 space-y-8">
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
           <div className="lg:col-span-2"><label className="text-xs font-bold uppercase text-zinc-400">Nom du tournoi</label><input value={form.nom} onChange={(e) => handleChange("nom", e.target.value)} placeholder="Ex: JOYBOY CUP #12" className="mt-2 w-full rounded-xl bg-[#0E0E14] border border-zinc-800 px-4 py-3 text-sm" /></div>
           <div><label className="text-xs font-bold uppercase text-zinc-400">Jeu</label><select value={form.jeu} onChange={(e) => handleChange("jeu", e.target.value)} className="mt-2 w-full rounded-xl bg-[#0E0E14] border border-zinc-800 px-4 py-3 text-sm">{JEUX.map((j) => (<option key={j} value={j}>{j}</option>))}</select></div>
-          <div><label className="text-xs font-bold uppercase text-zinc-400">Places</label><input type="number" min={2} max={64} value={form.places} onChange={(e) => handleChange("places", e.target.value)} className="mt-2 w-full rounded-xl bg-[#0E0E14] border border-zinc-800 px-4 py-3 text-sm" /></div>
+          <div><label className="text-xs font-bold uppercase text-zinc-400">Places</label><input type="number" min={2} max={128} value={form.places} onChange={(e) => handleChange("places", e.target.value)} className="mt-2 w-full rounded-xl bg-[#0E0E14] border border-zinc-800 px-4 py-3 text-sm" /></div>
           <div className="lg:col-span-2"><label className="text-xs font-bold uppercase text-zinc-400">Description</label><textarea value={form.description} onChange={(e) => handleChange("description", e.target.value)} rows={3} className="mt-2 w-full rounded-xl bg-[#0E0E14] border border-zinc-800 px-4 py-3 text-sm" /></div>
           <div><label className="text-xs font-bold uppercase text-zinc-400">Date</label><input type="date" value={form.date} onChange={(e) => handleChange("date", e.target.value)} className="mt-2 w-full rounded-xl bg-[#0E0E14] border border-zinc-800 px-4 py-3 text-sm" /></div>
           <div><label className="text-xs font-bold uppercase text-zinc-400">Heure (Abidjan)</label><input type="time" value={form.heure} onChange={(e) => handleChange("heure", e.target.value)} className="mt-2 w-full rounded-xl bg-[#0E0E14] border border-zinc-800 px-4 py-3 text-sm" /></div>

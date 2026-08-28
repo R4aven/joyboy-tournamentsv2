@@ -1,54 +1,7 @@
-
 "use client";
 import { useEffect, useState } from "react";
 import { createClient } from "@/lib/supabase/client";
 import { useAuth } from "@/hooks/useAuth";
-import Link from "next/link";
-import { Bell } from "lucide-react";
-
-export default function NotificationsPage() {
-  const supabase = createClient();
-  const { user } = useAuth() as any;
-  const [notifs, setNotifs] = useState<any[]>([]);
-  const [loading, setLoading] = useState(true);
-
-  useEffect(() => {
-    const load = async () => {
-      if (!user) { setLoading(false); return; }
-      const { data } = await supabase.from("notifications").select("*").eq("user_id", user.id).order("created_at", {ascending: false}).limit(50);
-      if (data) setNotifs(data);
-      setLoading(false);
-    };
-    if (user) load();
-  }, [user]);
-
-  const markAllRead = async () => {
-    if (!user) return;
-    await supabase.from("notifications").update({ is_read: true }).eq("user_id", user.id);
-    setNotifs(notifs.map(n=>({...n, is_read:true})));
-  };
-
-  if (loading) return <div className="min-h-screen bg-[#08080B] text-white p-10">Chargement...</div>;
-
-  return (
-    <div className="min-h-screen bg-[#08080B] text-white">
-      <div className="mx-auto max-w-3xl px-6 py-10">
-        <div className="flex items-center justify-between">
-          <h1 className="text-2xl font-black flex items-center gap-2"><Bell className="h-6 w-6" /> Notifications</h1>
-          <button onClick={markAllRead} className="rounded-xl bg-[#15151E] border border-zinc-800 px-4 py-2 text-xs font-bold">Tout marquer lu</button>
-        </div>
-        {notifs.length===0 ? <p className="mt-8 text-zinc-500">Aucune notification - elles ne resteront plus grises, elles se marquent lues correctement</p> : (
-          <div className="mt-6 space-y-3">
-            {notifs.map(n=>(
-              <div key={n.id} className={`rounded-2xl border p-4 ${n.is_read ? "border-zinc-800 bg-[#101015] opacity-60" : "border-violet-600/30 bg-violet-600/10"}`}>
-                <p className="font-bold text-sm">{n.title}</p>
-                <p className="text-xs text-zinc-400 mt-1">{n.message}</p>
-                {n.link && <Link href={n.link} className="mt-2 inline-block text-xs text-violet-400">Voir</Link>}
-              </div>
-            ))}
-          </div>
-        )}
-      </div>
-    </div>
-  );
-}
+import { useRouter } from "next/navigation";
+import { Bell, Reply, ExternalLink } from "lucide-react";
+export default function NotificationsPage(){const supabase=createClient();const router=useRouter();const{user}=useAuth() as any;const[notifs,setNotifs]=useState<any[]>([]);const[loading,setLoading]=useState(true);const load=async()=>{if(!user){setLoading(false);return}const{data}=await supabase.from("notifications").select("*").eq("user_id",user.id).order("created_at",{ascending:false}).limit(100);setNotifs(data||[]);setLoading(false)};useEffect(()=>{load();if(!user)return;const ch=supabase.channel(`notifications-${user.id}`).on("postgres_changes",{event:"*",schema:"public",table:"notifications",filter:`user_id=eq.${user.id}`},load).subscribe();return()=>{supabase.removeChannel(ch)}},[user]);const open=async(n:any,reply=false)=>{if(!n.is_read){await supabase.from("notifications").update({is_read:true}).eq("id",n.id);setNotifs(x=>x.map(v=>v.id===n.id?{...v,is_read:true}:v))}let link=n.link as string|null;if(reply&&n.related_type==="message"&&n.related_id){link=`/messages?message=${n.related_id}&reply=1`}if(!link&&n.related_type==="tournament"&&n.related_id)link=`/tournaments/${n.related_id}`;if(!link&&n.related_type==="match"&&n.related_id)link=`/matches/${n.related_id}`;if(link)router.push(link);else router.push("/notifications")};const markAll=async()=>{if(!user)return;await supabase.from("notifications").update({is_read:true}).eq("user_id",user.id).eq("is_read",false);setNotifs(x=>x.map(n=>({...n,is_read:true})))};if(loading)return <div className="min-h-screen bg-[#08080B] text-white p-10">Chargement...</div>;return <div className="min-h-screen bg-[#08080B] text-white"><div className="mx-auto max-w-3xl px-4 py-10"><div className="flex items-center justify-between"><h1 className="text-2xl font-black flex items-center gap-2"><Bell className="h-6 w-6"/>Notifications</h1><button onClick={markAll} className="rounded-xl bg-[#15151E] border border-zinc-800 px-4 py-2 text-xs font-bold">Tout marquer lu</button></div><div className="mt-6 space-y-3">{notifs.map(n=>{const admin=n.type==="ADMIN"||n.related_type==="admin_message";const message=n.related_type==="message"||n.type==="MESSAGE"||n.type==="DEFI_RECU";return <div key={n.id} className={`rounded-2xl border p-4 ${n.is_read?"border-zinc-800 bg-[#101015]":"border-violet-600/30 bg-violet-600/10"}`}><div className="flex items-start gap-3"><div className="flex-1"><p className="font-bold text-sm">{admin?"👑 ADMIN • ":""}{n.title}</p><p className="text-xs text-zinc-400 mt-1">{n.message}</p></div><span className="text-[10px] text-zinc-600">{new Date(n.created_at).toLocaleDateString("fr-FR")}</span></div><div className="mt-3 flex gap-2"><button onClick={()=>open(n)} className="inline-flex items-center gap-1 rounded-lg border border-violet-500/20 px-3 py-2 text-xs text-violet-300"><ExternalLink className="h-3 w-3"/>Voir</button>{message&&!admin&&<button onClick={()=>open(n,true)} className="inline-flex items-center gap-1 rounded-lg bg-white text-black px-3 py-2 text-xs font-black"><Reply className="h-3 w-3"/>Répondre</button>}{admin&&<span className="text-[11px] text-amber-300 self-center">Vous ne pouvez pas répondre directement aux administrateurs.</span>}</div></div>})}{notifs.length===0&&<p className="text-zinc-500">Aucune notification.</p>}</div></div></div>}

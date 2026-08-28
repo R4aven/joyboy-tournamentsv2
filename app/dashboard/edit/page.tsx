@@ -5,6 +5,7 @@ import { useAuth } from "@/hooks/useAuth";
 import { useRouter } from "next/navigation";
 import { toast } from "sonner";
 import { Upload, Save, User, Image as ImageIcon, FileText, ArrowLeft } from "lucide-react";
+import { createSafeStoragePath, validateImageFile } from "@/lib/storage/safePath";
 import Link from "next/link";
 
 export default function EditProfilePage() {
@@ -37,27 +38,25 @@ export default function EditProfilePage() {
 
   const uploadAvatar = async (): Promise<string | null> => {
     if (!file || !user) return avatarUrl;
+    const validation = validateImageFile(file);
+    if (validation) { toast.error(validation); return null; }
     setUploading(true);
     try {
-      const ext = file.name.split(".").pop();
-      const path = `${user.id}/avatar-${Date.now()}.${ext}`;
-      // bucket avatars doit exister, sinon on utilise profiles bucket ou storage public
-      const { error: upError } = await supabase.storage.from("avatars").upload(path, file, { upsert: true });
-      if (upError) {
-        // fallback bucket "avatars" n'existe pas, essaie "public"
-        const { error: up2 } = await supabase.storage.from("public").upload(path, file, { upsert: true });
-        if (up2) throw up2;
-        const { data } = supabase.storage.from("public").getPublicUrl(path);
-        return data.publicUrl;
-      }
+      const path = createSafeStoragePath("", user.id, file, "avatar").replace(/^\//, "");
+      const { error } = await supabase.storage.from("avatars").upload(path, file, {
+        cacheControl: "3600",
+        upsert: false,
+        contentType: file.type,
+      });
+      if (error) throw error;
       const { data } = supabase.storage.from("avatars").getPublicUrl(path);
-      return data.publicUrl;
+      if (!data?.publicUrl) throw new Error("Impossible de récupérer la photo.");
+      return `${data.publicUrl}?t=${Date.now()}`;
     } catch (e: any) {
-      toast.error("Upload échoué: " + e.message);
+      console.error("Avatar upload failed", e);
+      toast.error("Impossible d'envoyer la photo. Vérifie le fichier et réessaie.");
       return null;
-    } finally {
-      setUploading(false);
-    }
+    } finally { setUploading(false); }
   };
 
   const handleSave = async () => {
@@ -69,7 +68,8 @@ export default function EditProfilePage() {
       let finalAvatar = avatarUrl;
       if (file) {
         const url = await uploadAvatar();
-        if (url) finalAvatar = url;
+        if (!url) return;
+        finalAvatar = url;
       }
 
       // check username unique sauf pour soi
@@ -85,7 +85,10 @@ export default function EditProfilePage() {
 
       if (error) throw error;
 
-      toast.success("Profil mis à jour ! Visible par tous ✅");
+      setAvatarUrl(finalAvatar);
+      setPreview(null);
+      setFile(null);
+      toast.success("Profil mis à jour !");
       router.push(`/profile/${username}`);
     } catch (e: any) {
       toast.error(e.message);

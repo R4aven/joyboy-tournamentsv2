@@ -21,8 +21,8 @@ export default function AdminNotificationsPage() {
   const timer = useRef<any>(null);
 
   useEffect(() => {
-    supabase.from("profiles").select("*", { count: "exact", head: true }).then(({count})=> count && setAllCount(count));
-    const ch = supabase.channel("profiles-admin").on("postgres_changes", { event: "INSERT", schema: "public", table: "profiles" }, (payload) => {
+    supabase.from("profiles").select("*", { count: "exact", head: true }).then(({count}: any)=> count && setAllCount(count));
+    const ch = supabase.channel("profiles-admin").on("postgres_changes", { event: "INSERT", schema: "public", table: "profiles" }, (payload: any) => {
       const p = payload.new as Profile;
       toast.success(`Nouveau @${p.username} - dropdown mis a jour`);
       if (query && p.username.toLowerCase().includes(query.toLowerCase())) setResults(prev => [p, ...prev].slice(0,10));
@@ -56,7 +56,7 @@ export default function AdminNotificationsPage() {
     if (!title || !message) return toast.error("Remplis");
     setLoading(true);
     const { data: profiles } = await supabase.from("profiles").select("id").limit(2000);
-    const notifs = profiles?.map(p=>({ user_id: p.id, type, title, message, link: "/notifications" }));
+    const notifs = profiles?.map((p: any)=>({ user_id: p.id, type, title, message, link: "/notifications" }));
     const { error } = await supabase.from("notifications").insert(notifs as any);
     setLoading(false);
     if (error) toast.error(error.message); else { toast.success(`Envoye a ${profiles?.length}`); setTitle(""); setMessage(""); }

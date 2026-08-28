@@ -1,76 +1,27 @@
-
 "use client";
 import { useEffect, useState } from "react";
 import { createClient } from "@/lib/supabase/client";
-import { Tag, Plus, Trash2, Edit, Check, X, Gift } from "lucide-react";
+import { Tag, Plus, Trash2, Check, X, Gift, Search } from "lucide-react";
 import { toast } from "sonner";
 
-type Promo = { id: string; code: string; discount_type: 'percent'|'fixed'; discount_value: number; max_uses: number; used_count: number; active: boolean; expires_at?: string; description?: string; created_at?: string; };
-
-export default function AdminPromoCodesPage() {
-  const supabase = createClient();
-  const [promos, setPromos] = useState<Promo[]>([]);
-  const [loading, setLoading] = useState(true);
-  const [form, setForm] = useState({ code: "", discount_type: "percent" as any, discount_value: 10, max_uses: 100, description: "", active: true });
-
-  const load = async () => {
-    setLoading(true);
-    const { data } = await supabase.from("promo_codes").select("*").order("created_at", { ascending: false });
-    if (data) setPromos(data as Promo[]);
-    setLoading(false);
-  };
-
-  useEffect(() => { load(); }, []);
-
-  const create = async () => {
-    if (!form.code) return toast.error("Code requis");
-    const { error } = await supabase.from("promo_codes").insert({ code: form.code.toUpperCase().trim(), discount_type: form.discount_type, discount_value: form.discount_value, max_uses: form.max_uses, description: form.description, active: form.active });
-    if (error) toast.error(error.message); else { toast.success("Code cree"); setForm({ code: "", discount_type: "percent", discount_value: 10, max_uses: 100, description: "", active: true }); load(); }
-  };
-
-  const toggleActive = async (p: Promo) => {
-    await supabase.from("promo_codes").update({ active: !p.active }).eq("id", p.id);
-    load();
-  };
-
-  const remove = async (id: string) => {
-    if (!confirm("Supprimer ce code ?")) return;
-    await supabase.from("promo_codes").delete().eq("id", id);
-    load();
-  };
-
-  return (
-    <div className="max-w-5xl mx-auto p-6 space-y-6">
-      <h1 className="text-3xl font-black flex items-center gap-3"><Tag className="h-7 w-7 text-violet-500" /> Codes Promo - Admin - Reduit prix tournois</h1>
-      
-      <div className="rounded-2xl border border-zinc-800 bg-[#101015] p-6 space-y-4">
-        <h3 className="font-bold flex items-center gap-2"><Plus className="h-4 w-4" /> Creer nouveau code promo (mis dans admin, marche a l'inscription)</h3>
-        <div className="grid md:grid-cols-3 gap-4">
-          <div><label className="text-xs uppercase text-zinc-500">Code</label><input value={form.code} onChange={e=>setForm({...form, code: e.target.value.toUpperCase()})} placeholder="Ex: JOYBOY20" className="mt-1 w-full rounded-xl bg-[#15151E] border border-zinc-800 px-4 py-2.5 text-sm" /></div>
-          <div><label className="text-xs uppercase text-zinc-500">Type</label><select value={form.discount_type} onChange={e=>setForm({...form, discount_type: e.target.value as any})} className="mt-1 w-full rounded-xl bg-[#15151E] border border-zinc-800 px-4 py-2.5 text-sm"><option value="percent">% Pourcent</option><option value="fixed">F Fixe</option></select></div>
-          <div><label className="text-xs uppercase text-zinc-500">Valeur</label><input type="number" value={form.discount_value} onChange={e=>setForm({...form, discount_value: parseInt(e.target.value)||0})} className="mt-1 w-full rounded-xl bg-[#15151E] border border-zinc-800 px-4 py-2.5 text-sm" /></div>
-        </div>
-        <div className="grid md:grid-cols-2 gap-4">
-          <div><label className="text-xs uppercase text-zinc-500">Max utilisations</label><input type="number" value={form.max_uses} onChange={e=>setForm({...form, max_uses: parseInt(e.target.value)||0})} className="mt-1 w-full rounded-xl bg-[#15151E] border border-zinc-800 px-4 py-2.5 text-sm" /></div>
-          <div><label className="text-xs uppercase text-zinc-500">Description</label><input value={form.description} onChange={e=>setForm({...form, description: e.target.value})} placeholder="Ex: 20% bienvenue" className="mt-1 w-full rounded-xl bg-[#15151E] border border-zinc-800 px-4 py-2.5 text-sm" /></div>
-        </div>
-        <button onClick={create} className="rounded-xl bg-white text-black px-6 py-2.5 text-sm font-bold">Creer code promo</button>
-      </div>
-
-      <div className="rounded-2xl border border-zinc-800 bg-[#101015] overflow-hidden">
-        <div className="p-4 border-b border-zinc-800 flex items-center justify-between"><h3 className="font-bold">Codes existants ({promos.length})</h3><span className="text-xs text-zinc-500">Codes qui marchent - reduit prix tournois inscription</span></div>
-        <div className="divide-y divide-zinc-800/50">
-          {promos.map(p=>(
-            <div key={p.id} className="p-4 flex items-center justify-between">
-              <div className="flex items-center gap-3">
-                <div className={`h-10 w-10 rounded-xl flex items-center justify-center font-black text-xs ${p.active ? 'bg-emerald-500/20 text-emerald-300' : 'bg-zinc-800 text-zinc-500'}`}><Gift className="h-5 w-5" /></div>
-                <div><p className="font-bold flex items-center gap-2">{p.code} {p.active ? <span className="text-[10px] bg-emerald-500/20 text-emerald-300 px-2 py-0.5 rounded-full">ACTIF</span> : <span className="text-[10px] bg-zinc-800 px-2 py-0.5 rounded-full">INACTIF</span>}</p><p className="text-xs text-zinc-500">{p.description} • {p.discount_type==='percent' ? `${p.discount_value}%` : `${p.discount_value}F`} • {p.used_count}/{p.max_uses} utilises</p></div>
-              </div>
-              <div className="flex gap-2"><button onClick={()=>toggleActive(p)} className="rounded-lg bg-[#15151E] border border-zinc-800 p-2">{p.active ? <X className="h-4 w-4" /> : <Check className="h-4 w-4" />}</button><button onClick={()=>remove(p.id)} className="rounded-lg bg-red-500/10 border border-red-500/20 p-2 text-red-400"><Trash2 className="h-4 w-4" /></button></div>
-            </div>
-          ))}
-        </div>
-      </div>
-    </div>
-  );
+type Promo = { id:string; code:string; discount_type:"percent"|"fixed"; discount_value:number; max_uses:number; used_count:number; active:boolean; starts_at?:string|null; expires_at?:string|null; description?:string|null; show_banner:boolean; tournament_ids:string[]; created_at?:string };
+export default function AdminPromoCodesPage(){
+ const supabase=createClient(); const [editingId,setEditingId]=useState<string|null>(null); const [promos,setPromos]=useState<Promo[]>([]); const [tournaments,setTournaments]=useState<any[]>([]); const [search,setSearch]=useState(""); const [loading,setLoading]=useState(true);
+ const [form,setForm]=useState({code:"",discount_type:"percent" as "percent"|"fixed",discount_value:10,max_uses:100,starts_at:"",expires_at:"",description:"",active:true,show_banner:false,tournament_ids:[] as string[]});
+ const load=async()=>{setLoading(true); const [{data:p},{data:t}]=await Promise.all([supabase.from("promo_codes").select("*").order("created_at",{ascending:false}),supabase.from("tournaments").select("id,title,max_players").order("created_at",{ascending:false}).limit(200)]); setPromos((p||[]) as Promo[]); setTournaments(t||[]); setLoading(false)}; useEffect(()=>{load()},[]);
+ const save=async()=>{const code=form.code.trim().toUpperCase(); if(!/^[A-Z0-9_-]{2,40}$/.test(code)) return toast.error("Code invalide"); if(form.discount_value<0 || (form.discount_type==="percent"&&form.discount_value>100)) return toast.error("Réduction invalide"); const payload={...form,code,starts_at:form.starts_at||null,expires_at:form.expires_at||null,updated_at:new Date().toISOString()}; const result=editingId?await supabase.from("promo_codes").update(payload).eq("id",editingId):await supabase.from("promo_codes").insert({...payload,created_by:(await supabase.auth.getUser()).data.user?.id||null}); if(result.error) toast.error("Impossible d'enregistrer le code."); else {toast.success(editingId?"Code promo modifié":"Code promo créé"); setEditingId(null); setForm({code:"",discount_type:"percent",discount_value:10,max_uses:100,starts_at:"",expires_at:"",description:"",active:true,show_banner:false,tournament_ids:[]}); load();}};
+ const toggle=async(p:Promo)=>{const {error}=await supabase.from("promo_codes").update({active:!p.active,updated_at:new Date().toISOString()}).eq("id",p.id); if(error) toast.error("Modification impossible"); else load()};
+ const banner=async(p:Promo)=>{const {error}=await supabase.from("promo_codes").update({show_banner:!p.show_banner,updated_at:new Date().toISOString()}).eq("id",p.id); if(error) toast.error("Modification impossible"); else load()};
+ const remove=async(id:string)=>{if(!confirm("Supprimer ce code promo ?"))return; const {error}=await supabase.from("promo_codes").delete().eq("id",id); if(error)toast.error("Suppression impossible");else load()};
+ const filtered=promos.filter(p=>p.code.toLowerCase().includes(search.toLowerCase())||(p.description||"").toLowerCase().includes(search.toLowerCase()));
+ return <div className="max-w-6xl mx-auto space-y-6"><div><h1 className="text-3xl font-black flex items-center gap-3"><Tag className="h-7 w-7 text-violet-500"/> Codes promo</h1><p className="text-sm text-zinc-400 mt-1">Création, limites, dates, tournois ciblés et bannière publique.</p></div>
+ <div className="rounded-2xl border border-zinc-800 bg-[#101015] p-6 space-y-4"><h2 className="font-bold flex items-center gap-2"><Plus className="h-4 w-4"/> {editingId?"Modifier le code":"Nouveau code"}</h2><div className="grid md:grid-cols-4 gap-3">
+ <input value={form.code} onChange={e=>setForm({...form,code:e.target.value.toUpperCase()})} placeholder="PROMO50" className="rounded-xl bg-[#15151E] border border-zinc-800 px-4 py-2.5 text-sm"/>
+ <select value={form.discount_type} onChange={e=>setForm({...form,discount_type:e.target.value as any})} className="rounded-xl bg-[#15151E] border border-zinc-800 px-4 py-2.5 text-sm"><option value="percent">Pourcentage</option><option value="fixed">Montant fixe</option></select>
+ <input type="number" min="0" value={form.discount_value} onChange={e=>setForm({...form,discount_value:Number(e.target.value)})} className="rounded-xl bg-[#15151E] border border-zinc-800 px-4 py-2.5 text-sm"/>
+ <input type="number" min="1" value={form.max_uses} onChange={e=>setForm({...form,max_uses:Number(e.target.value)})} className="rounded-xl bg-[#15151E] border border-zinc-800 px-4 py-2.5 text-sm" placeholder="Max utilisations"/>
+ </div><div className="grid md:grid-cols-3 gap-3"><input type="datetime-local" value={form.starts_at} onChange={e=>setForm({...form,starts_at:e.target.value})} className="rounded-xl bg-[#15151E] border border-zinc-800 px-4 py-2.5 text-sm"/><input type="datetime-local" value={form.expires_at} onChange={e=>setForm({...form,expires_at:e.target.value})} className="rounded-xl bg-[#15151E] border border-zinc-800 px-4 py-2.5 text-sm"/><input value={form.description} onChange={e=>setForm({...form,description:e.target.value})} placeholder="Description interne" className="rounded-xl bg-[#15151E] border border-zinc-800 px-4 py-2.5 text-sm"/></div>
+ <div><p className="text-xs text-zinc-500 mb-2">Tournois concernés (vide = tous)</p><div className="flex flex-wrap gap-2 max-h-28 overflow-auto">{tournaments.map(t=><label key={t.id} className="text-xs rounded-lg border border-zinc-800 px-3 py-2 cursor-pointer"><input type="checkbox" checked={form.tournament_ids.includes(t.id)} onChange={e=>setForm({...form,tournament_ids:e.target.checked?[...form.tournament_ids,t.id]:form.tournament_ids.filter(id=>id!==t.id)})} className="mr-2"/>{t.title}</label>)}</div></div>
+ <div className="flex flex-wrap gap-4 text-sm"><label><input type="checkbox" checked={form.active} onChange={e=>setForm({...form,active:e.target.checked})} className="mr-2"/>Actif</label><label><input type="checkbox" checked={form.show_banner} onChange={e=>setForm({...form,show_banner:e.target.checked})} className="mr-2"/>Afficher la bannière</label></div><div className="flex gap-2"><button onClick={save} className="rounded-xl bg-white text-black px-6 py-2.5 text-sm font-black">{editingId?"Enregistrer les modifications":"Créer le code"}</button>{editingId&&<button onClick={()=>{setEditingId(null);setForm({code:"",discount_type:"percent",discount_value:10,max_uses:100,starts_at:"",expires_at:"",description:"",active:true,show_banner:false,tournament_ids:[]})}} className="rounded-xl border border-zinc-800 px-6 py-2.5 text-sm font-bold">Annuler</button>}</div></div>
+ <div className="rounded-2xl border border-zinc-800 bg-[#101015] overflow-hidden"><div className="p-4 border-b border-zinc-800 flex items-center gap-3"><Search className="h-4 w-4 text-zinc-500"/><input value={search} onChange={e=>setSearch(e.target.value)} placeholder="Rechercher un code..." className="bg-transparent outline-none text-sm flex-1"/></div>{loading?<div className="p-10 text-center text-zinc-500">Chargement...</div>:filtered.map(p=><div key={p.id} className="p-4 border-b border-zinc-800/50 flex flex-wrap items-center justify-between gap-4"><div><p className="font-black flex items-center gap-2">{p.code}<span className={`text-[10px] rounded-full px-2 py-1 ${p.active?"bg-emerald-500/15 text-emerald-300":"bg-zinc-800 text-zinc-500"}`}>{p.active?"ACTIF":"INACTIF"}</span>{p.show_banner&&<span className="text-[10px] rounded-full px-2 py-1 bg-violet-500/15 text-violet-300">BANNIÈRE</span>}</p><p className="text-xs text-zinc-500 mt-1">{p.discount_type==="percent"?`${p.discount_value}%`:`${p.discount_value} FCFA`} • {p.used_count}/{p.max_uses} utilisations • {p.expires_at?`expire ${new Date(p.expires_at).toLocaleDateString("fr-FR")}`:"sans expiration"}</p><p className="text-xs text-zinc-600 mt-1">{p.description}</p></div><div className="flex gap-2"><button onClick={()=>{setEditingId(p.id);setForm({code:p.code,discount_type:p.discount_type,discount_value:p.discount_value,max_uses:p.max_uses,starts_at:p.starts_at?new Date(p.starts_at).toISOString().slice(0,16):"",expires_at:p.expires_at?new Date(p.expires_at).toISOString().slice(0,16):"",description:p.description||"",active:p.active,show_banner:p.show_banner,tournament_ids:p.tournament_ids||[]})}} className="rounded-lg border border-zinc-800 p-2 text-cyan-300" title="Modifier">✎</button><button onClick={()=>toggle(p)} className="rounded-lg border border-zinc-800 p-2">{p.active?<X className="h-4 w-4"/>:<Check className="h-4 w-4"/>}</button><button onClick={()=>banner(p)} className="rounded-lg border border-violet-500/20 p-2 text-violet-300"><Gift className="h-4 w-4"/></button><button onClick={()=>remove(p.id)} className="rounded-lg border border-red-500/20 p-2 text-red-400"><Trash2 className="h-4 w-4"/></button></div></div>)}{!loading&&filtered.length===0&&<div className="p-10 text-center text-zinc-500">Aucun code.</div>}</div></div>;
 }

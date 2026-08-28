@@ -73,7 +73,7 @@ export default function SalonDeMatch({ match, canView, currentUserId, onCreateSa
           <br />JOYBOY organise seulement - les joueurs jouent réellement sur eFootball.
         </p>
         <div className="mt-4 inline-flex items-center gap-2 rounded-full border border-amber-500/20 bg-amber-500/10 px-3 py-1 text-[10px] font-bold text-amber-300">
-          <ShieldCheck className="h-3.5 w-3.5" /> RLS Supabase + vérif user.id
+          <ShieldCheck className="h-3.5 w-3.5" /> Accès réservé aux participants
         </div>
       </div>
     );
@@ -145,7 +145,7 @@ export default function SalonDeMatch({ match, canView, currentUserId, onCreateSa
             {localLoading ? <Clock className="h-4 w-4 animate-spin" /> : <ShieldCheck className="h-4 w-4" />}
             J\'AI CRÉÉ LE SALON
           </button>
-          <p className="text-center text-[10px] text-zinc-600">Visible uniquement par toi, ton adversaire + admin. RLS vérifié.</p>
+          <p className="text-center text-[10px] text-zinc-600">Visible uniquement par les joueurs concernés et l'administration.</p>
         </div>
       </div>
     );

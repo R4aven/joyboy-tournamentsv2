@@ -20,6 +20,7 @@ export default function ProfilePage() {
   const [msg, setMsg] = useState("");
   const [messages, setMessages] = useState<any[]>([]);
   const [sending, setSending] = useState(false);
+  const adminConversation = profile?.role === "ADMIN";
 
   const isOwn = user && profile && user.id === profile.id;
 
@@ -42,10 +43,9 @@ export default function ProfilePage() {
     if (!user || !profile || !msg.trim()) return;
     setSending(true);
     try {
-      const { error } = await client.from("direct_messages").insert({ sender_id: user.id, receiver_id: profile.id, content: msg.trim() });
+      const { data: createdMessage, error } = await client.from("direct_messages").insert({ sender_id: user.id, receiver_id: profile.id, content: msg.trim() }).select("id").single();
       if (error) throw error;
-      // notif
-      await client.from("notifications").insert({ user_id: profile.id, type: "DEFI_RECU", title: `Message de @${user.email?.split("@")[0] || "joueur"}`, message: msg.trim().slice(0,100), link: `/profile/${usernameParam}` });
+      await client.from("notifications").insert({ user_id: profile.id, type: "MESSAGE", title: `Message de @${user.email?.split("@")[0] || "joueur"}`, message: msg.trim().slice(0,100), link: `/profile/${usernameParam}?chat=1`, related_id: createdMessage?.id || null, related_type: "message" });
       setMessages([...messages, { sender_id: user.id, content: msg, created_at: new Date().toISOString() }]);
       setMsg("");
       toast.success("Message envoyé");
@@ -77,7 +77,7 @@ export default function ProfilePage() {
             {messages.map((m,i)=><div key={i} className={`rounded-xl p-3 text-sm max-w-[80%] ${m.sender_id===user?.id ? "bg-violet-600 ml-auto text-white" : "bg-[#15151E] border border-zinc-800"}`}>{m.content}</div>)}
             {messages.length===0 && <p className="text-xs text-zinc-500">Aucun message - envoie le premier !</p>}
           </div>
-          <div className="mt-4 flex gap-2"><input value={msg} onChange={e=>setMsg(e.target.value)} placeholder="Écris ton message..." className="flex-1 rounded-xl bg-[#15151E] border border-zinc-800 px-4 py-2.5 text-sm" onKeyDown={e=> e.key==="Enter" && sendMessage()} /><button onClick={sendMessage} disabled={sending || !msg.trim()} className="rounded-xl bg-white text-black px-4 py-2.5"><Send className="h-4 w-4" /></button></div>
+          {adminConversation ? <div className="mt-4 rounded-xl border border-amber-500/20 bg-amber-500/5 p-4 text-xs text-amber-200">👑 <b>Message de l'administration</b><br/>Vous ne pouvez pas répondre directement aux administrateurs.<div className="mt-3"><a href="https://wa.me/2250748235226" className="inline-flex rounded-lg bg-white text-black px-3 py-2 font-black">Contacter JOYBOY sur WhatsApp</a></div></div> : <div className="mt-4 flex gap-2"><input value={msg} onChange={e=>setMsg(e.target.value)} placeholder="Écris ton message..." className="flex-1 rounded-xl bg-[#15151E] border border-zinc-800 px-4 py-2.5 text-sm" onKeyDown={e=> e.key==="Enter" && sendMessage()} /><button onClick={sendMessage} disabled={sending || !msg.trim()} className="rounded-xl bg-white text-black px-4 py-2.5"><Send className="h-4 w-4" /></button></div>}
         </div>
       )}
     </div>

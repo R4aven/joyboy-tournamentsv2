@@ -19,7 +19,7 @@ const NAV_ITEMS: NavItem[] = [
   { label: "Tournois", href: "/tournois", icon: Trophy },
   { label: "1V1", href: "/1v1", icon: Swords },
   { label: "Palmarès", href: "/palmares", icon: Crown },
-  { label: "Notifications", href: "/notifications", icon: Bell, badge: 3 },
+  { label: "Notifications", href: "/notifications", icon: Bell, badge: 0 },
   { label: "Profil", href: "/profil", icon: User },
 ]
 
